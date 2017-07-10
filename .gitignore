@@ -1,0 +1,5 @@
+wp-cli.local.yml
+vendor/
+*.zip
+*.tar.gz
+composer.lock
