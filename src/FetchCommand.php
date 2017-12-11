@@ -10,7 +10,7 @@ use WP_CLI_Command;
 
 class FetchCommand extends WP_CLI_Command {
 	/**
-	 * Get oEmbed data for a given URL.
+	 * Returns oEmbed data for a given URL.
 	 *
 	 * <url>
 	 * : URL to retrieve oEmbed data for.
@@ -30,14 +30,14 @@ class FetchCommand extends WP_CLI_Command {
 	 * [--verbose]
 	 * : Show debug information.
 	 *
-	 * [--discover=<true|false>]
-	 * : Whether to use oEmbed discovery or not.
+	 * [--discover]
+	 * : Whether to use oEmbed discovery or not. Defaults to true.
 	 *
 	 * [--limit-response-size=<size>]
 	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB.
 	 *
 	 * [--format=<format>]
-	 * : Which data format to prefer. (filter oembed_linktypes)
+	 * : Which data format to prefer.
 	 * ---
 	 * default: json
 	 * options:
@@ -48,7 +48,7 @@ class FetchCommand extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # List format,endpoint fields of available providers.
-	 *     $ wp oembed provider list --fields=format,endpoint
+	 *     $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
 	 */
 	public function __invoke( $args, $assoc_args ) {
 		$oembed = _wp_oembed_get_object();
@@ -57,7 +57,7 @@ class FetchCommand extends WP_CLI_Command {
 		$discover = \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
 		$response_size_limit = \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit-response-size' );
 
-		if ( $discover && $response_size_limit ) {
+		if ( $response_size_limit ) {
 			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
 				$args['limit_response_size'] = $response_size_limit;
 
