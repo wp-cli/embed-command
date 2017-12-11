@@ -1,2 +1,2 @@
 require:
-  - wp-cli-embeds.php
+  - embeds-command.php
