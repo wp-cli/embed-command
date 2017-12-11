@@ -1,8 +1,9 @@
 Feature: Manage oEmbed providers.
 
-  Scenario: List oEmbed providers
+  Background:
     Given a WP install
 
+  Scenario: List oEmbed providers
     When I run `wp embeds provider list --fields=format,endpoint`
     Then STDOUT should be a table containing rows:
       | format                                                                     | endpoint                                                              |
@@ -74,8 +75,6 @@ Feature: Manage oEmbed providers.
       | #https?://some\.ly\/.+#i                                                   | https://www.someecards.com/v2/oembed/                                 |
 
   Scenario: Get an oEmbed provider
-    Given a WP install
-
     When I run `wp embeds provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ`
     And STDOUT should be:
       """
