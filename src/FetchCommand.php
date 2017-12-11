@@ -84,6 +84,7 @@ class FetchCommand extends WP_CLI_Command {
 			} );
 		}
 
+		// WP_Embed::shortcode() can't return raw data, which means we need to use WP_oEmbed.
 		if ( $raw ) {
 			remove_filter( 'pre_oembed_result', 'wp_filter_pre_oembed_result' );
 			add_filter( 'pre_oembed_result', array( $this, 'filter_pre_oembed_result' ), 10, 3 );
@@ -154,8 +155,8 @@ class FetchCommand extends WP_CLI_Command {
 	 * If the URL belongs to the current site, the result is fetched directly instead of
 	 * going through the oEmbed discovery process.
 	 *
-	 * This function is identical to wp_filter_pre_oembed_result() with the exception that it can also
-	 * return the raw oEmbed data instead of just the resulting HTML.
+	 * This function is identical to wp_filter_pre_oembed_result() with the exception that it
+	 * returns the raw oEmbed data instead of just the resulting HTML.
 	 *
 	 * @param null|string $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed. Default null.
 	 * @param string      $url    The URL that should be inspected for discovery `<link>` tags.
