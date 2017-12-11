@@ -13,14 +13,23 @@ This package implements the following commands:
 
 ### wp embeds fetch
 
-Get oEmbed data for a given URL.
+Attempts to convert a URL into embed HTML.
 
 ~~~
-wp embeds fetch <url> [--post-id=<id>] [--skip-cache] [--raw] [--dry-run] [--verbose] [--discover=<true|false>] [--limit-response-size=<size>] [--format=<format>]
+wp embeds fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw]  Return the raw oEmbed response instead of the resulting HTML. [--dry-run] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
+
+Starts by checking the URL against the regex of the registered embed handlers.
+If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
 
 	<url>
 		URL to retrieve oEmbed data for.
+
+	[--width=<width>]
+		Width of the embed in pixels.
+
+	[--height=<height>]
+		Height of the embed in pixels.
 
 	[--post-id=<id>]
 		Cache oEmbed response for a given post.
@@ -30,21 +39,111 @@ wp embeds fetch <url> [--post-id=<id>] [--skip-cache] [--raw] [--dry-run] [--ver
 
 	[--raw]
 		Return the raw oEmbed response instead of the resulting HTML.
+		: Only possible when there's no internal handler for the given URL.
 
 	[--dry-run]
 		Do not perform any HTTP requests.
 
-	[--verbose]
-		Show debug information.
-
-	[--discover=<true|false>]
-		Whether to use oEmbed discovery or not.
+	[--discover]
+		Enabled oEmbed discovery. Defaults to true.
 
 	[--limit-response-size=<size>]
 		Limit the size of the resulting HTML when using discovery. Default 150 KB.
 
 	[--format=<format>]
-		Which data format to prefer. (filter oembed_linktypes)
+		Which data format to prefer.
+		---
+		default: json
+		options:
+		  - json
+		  - xml
+		---
+
+**EXAMPLES**
+
+    # Get embed HTML for a given URL.
+    $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+    # Get raw oEmbed data for a given URL.
+    $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
+
+
+
+### wp embeds provider list
+
+List all available oEmbed provider.
+
+~~~
+wp embeds provider list [--field=<field>] [--fields=<fields>] [--format=<format>] [--force-regex]
+~~~
+
+	[--field=<field>]
+		Display the value of a single field
+
+	[--fields=<fields>]
+		Limit the output to specific fields.
+
+	[--format=<format>]
+		Render output in a particular format.
+		---
+		default: table
+		options:
+		  - table
+		  - csv
+		  - json
+		---
+
+	[--force-regex]
+		Turn the asterisk-type provider URLs into regex
+
+**AVAILABLE FIELDS**
+
+These fields will be displayed by default for each provider:
+
+* format
+* endpoint
+
+These fields are optionally available:
+
+* name
+* https
+* since
+
+**EXAMPLES**
+
+    # List format,endpoint fields of available providers.
+    $ wp embeds provider list --fields=format,endpoint
+    +------------------------------+-----------------------------------------+
+    | format                       | endpoint                                |
+    +------------------------------+-----------------------------------------+
+    | #https?://youtu\.be/.*#i     | https://www.youtube.com/oembed          |
+    | #https?://flic\.kr/.*#i      | https://www.flickr.com/services/oembed/ |
+    | #https?://wordpress\.tv/.*#i | https://wordpress.tv/oembed/            |
+
+
+
+### wp embeds provider get
+
+Get provider for a given URL.
+
+~~~
+wp embeds provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
+~~~
+
+	<url>
+		URL to retrieve provider for.
+
+	[--verbose]
+		Show debug information.
+
+	[--discover]
+		Whether to use oEmbed discovery or not. Defaults to true.
+
+	[--limit-response-size=<size>]
+		Limit the size of the resulting HTML when using discovery. Default 150 KB.
+
+	[--format=<format>]
+		Which data format to prefer.
 		---
 		default: json
 		options:
@@ -55,16 +154,16 @@ wp embeds fetch <url> [--post-id=<id>] [--skip-cache] [--raw] [--dry-run] [--ver
 **EXAMPLES**
 
     # List format,endpoint fields of available providers.
-    $ wp oembed provider list --fields=format,endpoint
+    $ wp embeds provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 
 
-### wp embeds provider list
+### wp embeds handler list
 
-List all available oEmbed provider.
+List all available embed handlers.
 
 ~~~
-wp embeds provider list [--field=<field>] [--fields=<fields>] [--format=<format>]
+wp embeds handler list [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 	[--field=<field>]
@@ -85,27 +184,89 @@ wp embeds provider list [--field=<field>] [--fields=<fields>] [--format=<format>
 
 **AVAILABLE FIELDS**
 
-These fields will be displayed by default for each provider:
+These fields will be displayed by default for each handler:
 
-* format
-* endpoint
+* id
+* regex
 
 These fields are optionally available:
 
-* name
-* https
-* since
+* callback
+* priority
 
 **EXAMPLES**
 
-    # List format,endpoint fields of available providers.
-    $ wp oembed provider list --fields=format,endpoint
-    +------------------------------+-----------------------------------------+
-    | format                       | endpoint                                |
-    +------------------------------+-----------------------------------------+
-    | #https?://youtu\.be/.*#i     | https://www.youtube.com/oembed          |
-    | #https?://flic\.kr/.*#i      | https://www.flickr.com/services/oembed/ |
-    | #https?://wordpress\.tv/.*#i | https://wordpress.tv/oembed/            |
+    # List id,regex,priority fields of available handlers.
+    $ wp embeds handler list --fields=priority,id
+    +----------+-------------------+
+    | priority | id                |
+    +----------+-------------------+
+    | 10       | youtube_embed_url |
+    | 9999     | audio             |
+    | 9999     | video             |
+
+
+
+### wp embeds cache clear
+
+Deletes all oEmbed caches for a given post.
+
+~~~
+wp embeds cache clear <post_id>
+~~~
+
+	<post_id>
+		ID of the post to clear the cache for.
+
+**EXAMPLES**
+
+    # Clear cache for a post
+    $ wp embeds cache clear 123
+
+
+
+### wp embeds cache find
+
+Find the oEmbed cache post ID for a given URL.
+
+~~~
+wp embeds cache find <url> [--width=<width>] [--height=<height>]
+~~~
+
+Starts by checking the URL against the regex of the registered embed handlers.
+If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+
+	<url>
+		URL to retrieve oEmbed data for.
+
+	[--width=<width>]
+		Width of the embed in pixels.
+
+	[--height=<height>]
+		Height of the embed in pixels.
+
+**EXAMPLES**
+
+    # Find cache post ID for a given URL.
+    $ wp embeds cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
+
+
+
+### wp embeds cache trigger
+
+Triggers a caching of all oEmbed results for a given post.
+
+~~~
+wp embeds cache trigger <post_id>
+~~~
+
+	<post_id>
+		ID of the post to do th caching for.
+
+**EXAMPLES**
+
+    # Clear cache for a post
+    $ wp embeds cache trigger 456
 
 ## Installing
 
