@@ -30,6 +30,14 @@ WP_CLI::add_command( 'embeds provider', '\WP_CLI\Embeds\ProviderCommand', array(
 	},
 ) );
 
+WP_CLI::add_command( 'embeds handler', '\WP_CLI\Embeds\HandlerCommand', array(
+	'before_invoke' => function () {
+		if ( \WP_CLI\Utils\wp_version_compare( '2.9', '<' ) ) {
+			WP_CLI::error( 'Requires WordPress 2.9 or greater.' );
+		}
+	},
+) );
+
 WP_CLI::add_command( 'embeds cache', '\WP_CLI\Embeds\CacheCommand', array(
 	'before_invoke' => function () {
 		if ( \WP_CLI\Utils\wp_version_compare( '2.9', '<' ) ) {
