@@ -4,6 +4,7 @@ namespace WP_CLI\Embeds;
 
 use WP_CLI;
 use WP_CLI\Formatter;
+use WP_CLI\Utils;
 use WP_CLI_Command;
 
 /**
@@ -34,6 +35,9 @@ class ProviderCommand extends WP_CLI_Command {
 	 *   - json
 	 * ---
 	 *
+	 * [--force-regex]
+	 * : Turn the asterisk-type provider URLs into regex
+	 *
 	 * ## AVAILABLE FIELDS
 	 *
 	 * These fields will be displayed by default for each provider:
@@ -63,21 +67,23 @@ class ProviderCommand extends WP_CLI_Command {
 	public function list_providers( $args, $assoc_args ) {
 		$oembed = _wp_oembed_get_object();
 
+		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
+
 		$providers = array();
 
-		foreach ( (array) $oembed->providers as $format => $endpoint ) {
-			$provider = array(
-				'format'   => $format,
-				'endpoint' => $endpoint,
-			);
+		foreach (  (array) $oembed->providers as $matchmask => $data ) {
+			list( $providerurl, $regex ) = $data;
 
-			foreach ( array_keys( $provider ) as $field ) {
-				if ( isset( $assoc_args[ $field ] ) && $assoc_args[ $field ] !== $provider[ $field ] ) {
-					continue 2;
-				}
+			// Turn the asterisk-type provider URLs into regex
+			if ( $force_regex && ! $regex ) {
+				$matchmask = '#' . str_replace( '___wildcard___', '(.+)', preg_quote( str_replace( '*', '___wildcard___', $matchmask ), '#' ) ) . '#i';
+				$matchmask = preg_replace( '|^#http\\\://|', '#https?\://', $matchmask );
 			}
 
-			$providers[] = $provider;
+			$providers[] = array(
+				'format'   => $matchmask,
+				'endpoint' => $providerurl,
+			);
 		}
 
 		$formatter = $this->get_formatter( $assoc_args );
@@ -157,7 +163,7 @@ class ProviderCommand extends WP_CLI_Command {
 			}
 		}
 
-		WP_CLI::success( sprintf('Provider found! URL: %s', $provider ) );
+		WP_CLI::line( $provider );
 	}
 
 	/**
