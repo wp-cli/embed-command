@@ -10,20 +10,22 @@ if ( file_exists( $autoload ) ) {
 	require_once $autoload;
 }
 
-use \Swissspidy\WP_CLI_Embeds;
+if ( class_exists( 'WP_CLI\Dispatcher\CommandNamespace' ) ) {
+	WP_CLI::add_command( 'embeds', '\WP_CLI\Embeds\EmbedsNamespace' );
+}
 
-WP_CLI::add_command( 'oembed fetch', WP_CLI_Embeds\Fetch_Command::class, [
+WP_CLI::add_command( 'embeds fetch', '\WP_CLI\Embeds\FetchCommand', array(
 	'before_invoke' => function () {
 		if ( \WP_CLI\Utils\wp_version_compare( '2.9', '<' ) ) {
 			WP_CLI::error( 'Requires WordPress 2.9 or greater.' );
 		}
 	},
-] );
+) );
 
-WP_CLI::add_command( 'oembed provider', WP_CLI_Embeds\Provider_Command::class, [
+WP_CLI::add_command( 'embeds provider', '\WP_CLI\Embeds\ProviderCommand', array(
 	'before_invoke' => function () {
 		if ( \WP_CLI\Utils\wp_version_compare( '2.9', '<' ) ) {
 			WP_CLI::error( 'Requires WordPress 2.9 or greater.' );
 		}
 	},
-] );
+) );

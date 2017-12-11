@@ -1,10 +1,14 @@
 <?php
 
-namespace Swissspidy\WP_CLI_Embeds;
+namespace WP_CLI\Embeds;
 
 use WP_CLI;
+use WP_CLI\Process;
+use WP_CLI\Utils;
+use WP_CLI\Formatter;
+use WP_CLI_Command;
 
-class Fetch_Command extends \WP_CLI_Command {
+class FetchCommand extends WP_CLI_Command {
 	/**
 	 * Get oEmbed data for a given URL.
 	 *
@@ -46,7 +50,7 @@ class Fetch_Command extends \WP_CLI_Command {
 	 *     # List format,endpoint fields of available providers.
 	 *     $ wp oembed provider list --fields=format,endpoint
 	 */
-	public function __invoke( array $args, array $assoc_args ) : void {
+	public function __invoke( $args, $assoc_args ) {
 		$oembed = _wp_oembed_get_object();
 
 		$url = $args[0];
@@ -61,9 +65,9 @@ class Fetch_Command extends \WP_CLI_Command {
 			} );
 		}
 
-		$oembed_args = [
+		$oembed_args = array(
 			'discover' => $discover,
-		];
+		);
 
 		$provider = $oembed->get_provider( $url, $oembed_args );
 

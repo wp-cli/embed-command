@@ -1,41 +1,33 @@
 {
-    "name": "swissspidy/wp-cli-embeds",
-    "description": "Handle oEmbed API via CLI.",
+    "name": "wp-cli/embeds-command",
+    "description": "Fetches and inspectes embeds",
     "type": "wp-cli-package",
-    "homepage": "https://github.com/swissspidy/wp-cli-embeds",
-    "support": {
-        "issues": "https://github.com/swissspidy/wp-cli-embeds"
-    },
+    "homepage": "https://github.com/wp-cli/embeds-command",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Pascal Birchler",
-            "email": "pascal@required.com",
-            "homepage": "https://pascalbirchler.com"
-        }
-    ],
+    "authors": [],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
-        "psr-4": {
-            "Swissspidy\\WP_CLI_Embeds\\": "src/"
-        },
         "files": [
-            "oembed-command.php"
-        ]
+            "embeds-command.php"
+        ],
+        "psr-4": {
+            "WP_CLI\\Embeds\\": "src/"
+        }
     },
-    "require": {},
+    "require": {
+        "wp-cli/wp-cli": "^1.1.0"
+    },
     "require-dev": {
-        "behat/behat": "~3.3",
-        "wp-cli/wp-cli": "*"
+        "behat/behat": "~2.5"
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.x-dev"
         },
         "commands": [
-            "oembed fetch",
-            "oembed provider list"
+            "embeds fetch",
+            "embeds provider list"
         ],
         "bundled": true
     }

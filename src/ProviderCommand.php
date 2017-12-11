@@ -1,14 +1,16 @@
 <?php
 
-namespace Swissspidy\WP_CLI_Embeds;
+namespace WP_CLI\Embeds;
 
+use WP_CLI;
 use WP_CLI\Formatter;
+use WP_CLI_Command;
 
-class Provider_Command extends \WP_CLI_Command {
-	protected $possible_fields = [
+class ProviderCommand extends WP_CLI_Command {
+	protected $possible_fields = array(
 		'format',
 		'endpoint',
-	];
+	);
 
 	/**
 	 * List all available oEmbed provider.
@@ -55,16 +57,16 @@ class Provider_Command extends \WP_CLI_Command {
 	 *
 	 * @subcommand list
 	 */
-	public function list( array $args, array $assoc_args ) : void {
+	public function list_providers( $args, $assoc_args ) {
 		$oembed = _wp_oembed_get_object();
 
-		$providers = [];
+		$providers = array();
 
 		foreach ( (array) $oembed->providers as $format => $endpoint ) {
-			$provider = [
+			$provider = array(
 				'format'   => $format,
 				'endpoint' => $endpoint,
-			];
+			);
 
 			foreach ( array_keys( $provider ) as $field ) {
 				if ( isset( $assoc_args[ $field ] ) && $assoc_args[ $field ] !== $provider[ $field ] ) {
@@ -85,7 +87,7 @@ class Provider_Command extends \WP_CLI_Command {
 	 * @param array $assoc_args Parameters passed to command. Determines formatting.
 	 * @return \WP_CLI\Formatter
 	 */
-	protected function get_formatter( array &$assoc_args ) : Formatter {
+	protected function get_formatter( &$assoc_args ) {
 		return new Formatter( $assoc_args, $this->possible_fields );
 	}
 }
