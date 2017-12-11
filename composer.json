@@ -27,7 +27,12 @@
         },
         "commands": [
             "embeds fetch",
-            "embeds provider list"
+            "embeds provider list",
+            "embeds provider get",
+            "embeds handler list",
+            "embeds cache clear",
+            "embeds cache find",
+            "embeds cache trigger"
         ],
         "bundled": true
     }
