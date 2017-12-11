@@ -39,7 +39,7 @@ class CacheCommand extends WP_CLI_Command {
 
 		$wp_embed->delete_oembed_caches( $post_id );
 
-		WP_CLI::success( sprintf( 'Successfully clear oEmbed cache for post with ID %s', $post_id ) );
+		WP_CLI::success( sprintf( 'Successfully cleared oEmbed cache for post %d', $post_id ) );
 	}
 
 	/**
@@ -69,13 +69,12 @@ class CacheCommand extends WP_CLI_Command {
 		$url = $args[0];
 
 		$oembed_args = array(
-			'width'    => Utils\get_flag_value( $assoc_args, 'width' ),
-			'height'   => Utils\get_flag_value( $assoc_args, 'height' ),
+			'width'    => (int) Utils\get_flag_value( $assoc_args, 'width' ),
+			'height'   => (int) Utils\get_flag_value( $assoc_args, 'height' ),
 		);
 
-		$attr    = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
-
-		$key_suffix    = md5( $url . serialize( $attr ) );
+		$attr       = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
+		$key_suffix = md5( $url . serialize( $attr ) );
 
 		$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
 
@@ -107,9 +106,17 @@ class CacheCommand extends WP_CLI_Command {
 		$post       = get_post( $post_id );
 		$post_types = get_post_types( array( 'show_ui' => true ) );
 
+		if ( empty( $post->ID ) ) {
+			WP_CLI::warning( sprintf( 'Post %d does not exist!', $post_id ) );
+
+			return;
+		}
+
 		/** This filter is documented in wp-includes/class-wp-embed.php */
-		if ( empty( $post->ID ) || ! in_array( $post->post_type, apply_filters( 'embed_cache_oembed_types', $post_types ), true ) ) {
-			WP_CLI::error( sprintf( 'Cannot cache results for post %d', $post_id ) );
+		if ( ! in_array( $post->post_type, apply_filters( 'embed_cache_oembed_types', $post_types ), true ) ) {
+			WP_CLI::warning( sprintf( 'Cannot cache oEmbed results for %s post type', $post->post_type ) );
+
+			return;
 		}
 
 		$wp_embed->cache_oembed( $post_id );
