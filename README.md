@@ -77,6 +77,8 @@ List all available oEmbed provider.
 wp embeds provider list [--field=<field>] [--fields=<fields>] [--format=<format>] [--force-regex]
 ~~~
 
+**OPTIONS**
+
 	[--field=<field>]
 		Display the value of a single field
 
@@ -130,6 +132,8 @@ Get provider for a given URL.
 wp embeds provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
+**OPTIONS**
+
 	<url>
 		URL to retrieve provider for.
 
@@ -165,6 +169,8 @@ List all available embed handlers.
 ~~~
 wp embeds handler list [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
+
+**OPTIONS**
 
 	[--field=<field>]
 		Display the value of a single field
@@ -215,6 +221,8 @@ Deletes all oEmbed caches for a given post.
 wp embeds cache clear <post_id>
 ~~~
 
+**OPTIONS**
+
 	<post_id>
 		ID of the post to clear the cache for.
 
@@ -235,6 +243,8 @@ wp embeds cache find <url> [--width=<width>] [--height=<height>]
 
 Starts by checking the URL against the regex of the registered embed handlers.
 If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+
+**OPTIONS**
 
 	<url>
 		URL to retrieve oEmbed data for.
@@ -259,6 +269,8 @@ Triggers a caching of all oEmbed results for a given post.
 ~~~
 wp embeds cache trigger <post_id>
 ~~~
+
+**OPTIONS**
 
 	<post_id>
 		ID of the post to do th caching for.

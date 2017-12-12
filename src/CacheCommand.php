@@ -15,6 +15,8 @@ class CacheCommand extends WP_CLI_Command {
 	/**
 	 * Deletes all oEmbed caches for a given post.
 	 *
+	 * ## OPTIONS
+	 *
 	 * <post_id>
 	 * : ID of the post to clear the cache for.
 	 *
@@ -47,6 +49,8 @@ class CacheCommand extends WP_CLI_Command {
 	 *
 	 * Starts by checking the URL against the regex of the registered embed handlers.
 	 * If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+	 *
+	 * ## OPTIONS
 	 *
 	 * <url>
 	 * : URL to retrieve oEmbed data for.
@@ -89,6 +93,8 @@ class CacheCommand extends WP_CLI_Command {
 
 	/**
 	 * Triggers a caching of all oEmbed results for a given post.
+	 *
+	 * ## OPTIONS
 	 *
 	 * <post_id>
 	 * : ID of the post to do th caching for.
