@@ -26,13 +26,13 @@
             "dev-master": "1.x-dev"
         },
         "commands": [
-            "embeds fetch",
-            "embeds provider list",
-            "embeds provider get",
-            "embeds handler list",
-            "embeds cache clear",
-            "embeds cache find",
-            "embeds cache trigger"
+            "embed fetch",
+            "embed provider list",
+            "embed provider get",
+            "embed handler list",
+            "embed cache clear",
+            "embed cache find",
+            "embed cache trigger"
         ],
         "bundled": true
     }

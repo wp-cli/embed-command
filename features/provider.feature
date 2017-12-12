@@ -4,7 +4,7 @@ Feature: Manage oEmbed providers.
     Given a WP install
 
   Scenario: List oEmbed providers
-    When I run `wp embeds provider list --fields=format,endpoint`
+    When I run `wp embed provider list --fields=format,endpoint`
     Then STDOUT should be a table containing rows:
       | format                                                                     | endpoint                                                              |
       | #https?://((m\|www)\.)?youtube\.com/watch.*#i                              | https://www.youtube.com/oembed                                        |
@@ -75,7 +75,7 @@ Feature: Manage oEmbed providers.
       | #https?://some\.ly\/.+#i                                                   | https://www.someecards.com/v2/oembed/                                 |
 
   Scenario: Get an oEmbed provider
-    When I run `wp embeds provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+    When I run `wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ`
     And STDOUT should be:
       """
       https://www.youtube.com/oembed

@@ -4,7 +4,7 @@ Feature: Manage embed handlers.
     Given a WP install
 
   Scenario: List embed handlers
-    When I run `wp embeds handler list --fields=priority,id`
+    When I run `wp embed handler list --fields=priority,id`
     Then STDOUT should be a table containing rows:
       | priority | id                |
       | 10       | youtube_embed_url |
