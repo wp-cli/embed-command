@@ -19,6 +19,8 @@ class ProviderCommand extends WP_CLI_Command {
 	/**
 	 * List all available oEmbed provider.
 	 *
+	 * ## OPTIONS
+	 *
 	 * [--field=<field>]
 	 * : Display the value of a single field
 	 *
@@ -92,6 +94,8 @@ class ProviderCommand extends WP_CLI_Command {
 
 	/**
 	 * Get provider for a given URL.
+	 *
+	 * ## OPTIONS
 	 *
 	 * <url>
 	 * : URL to retrieve provider for.
