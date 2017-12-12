@@ -8,7 +8,7 @@ use WP_CLI\Utils;
 use WP_CLI\Formatter;
 use WP_CLI_Command;
 
-class FetchCommand extends WP_CLI_Command {
+class Fetch_Command extends WP_CLI_Command {
 	/**
 	 * Attempts to convert a URL into embed HTML.
 	 *

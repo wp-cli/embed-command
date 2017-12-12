@@ -10,7 +10,7 @@ use WP_CLI_Command;
 /**
  * Retrieves oEmbed providers.
  */
-class ProviderCommand extends WP_CLI_Command {
+class Provider_Command extends WP_CLI_Command {
 	protected $possible_fields = array(
 		'format',
 		'endpoint',

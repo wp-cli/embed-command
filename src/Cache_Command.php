@@ -11,7 +11,7 @@ use WP_CLI_Command;
 /**
  * Manages oEmbed caches.
  */
-class CacheCommand extends WP_CLI_Command {
+class Cache_Command extends WP_CLI_Command {
 	/**
 	 * Deletes all oEmbed caches for a given post.
 	 *
