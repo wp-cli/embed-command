@@ -9,7 +9,7 @@ use WP_CLI_Command;
 /**
  * Retrieves embed handlers.
  */
-class HandlerCommand extends WP_CLI_Command {
+class Handler_Command extends WP_CLI_Command {
 	protected $possible_fields = array(
 		'id',
 		'regex',
