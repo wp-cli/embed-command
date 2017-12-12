@@ -11,12 +11,12 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 
 This package implements the following commands:
 
-### wp embeds fetch
+### wp embed fetch
 
 Attempts to convert a URL into embed HTML.
 
 ~~~
-wp embeds fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw]  Return the raw oEmbed response instead of the resulting HTML. [--dry-run] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw]  Return the raw oEmbed response instead of the resulting HTML. [--dry-run] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
 Starts by checking the URL against the regex of the registered embed handlers.
@@ -69,12 +69,12 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 
 
 
-### wp embeds provider list
+### wp embed provider list
 
 List all available oEmbed provider.
 
 ~~~
-wp embeds provider list [--field=<field>] [--fields=<fields>] [--format=<format>] [--force-regex]
+wp embed provider list [--field=<field>] [--fields=<fields>] [--format=<format>] [--force-regex]
 ~~~
 
 	[--field=<field>]
@@ -122,12 +122,12 @@ These fields are optionally available:
 
 
 
-### wp embeds provider get
+### wp embed provider get
 
 Get provider for a given URL.
 
 ~~~
-wp embeds provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
 	<url>
@@ -158,12 +158,12 @@ wp embeds provider get <url> [--verbose] [--discover] [--limit-response-size=<si
 
 
 
-### wp embeds handler list
+### wp embed handler list
 
 List all available embed handlers.
 
 ~~~
-wp embeds handler list [--field=<field>] [--fields=<fields>] [--format=<format>]
+wp embed handler list [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 	[--field=<field>]
@@ -207,12 +207,12 @@ These fields are optionally available:
 
 
 
-### wp embeds cache clear
+### wp embed cache clear
 
 Deletes all oEmbed caches for a given post.
 
 ~~~
-wp embeds cache clear <post_id>
+wp embed cache clear <post_id>
 ~~~
 
 	<post_id>
@@ -225,12 +225,12 @@ wp embeds cache clear <post_id>
 
 
 
-### wp embeds cache find
+### wp embed cache find
 
 Find the oEmbed cache post ID for a given URL.
 
 ~~~
-wp embeds cache find <url> [--width=<width>] [--height=<height>]
+wp embed cache find <url> [--width=<width>] [--height=<height>]
 ~~~
 
 Starts by checking the URL against the regex of the registered embed handlers.
@@ -252,12 +252,12 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 
 
 
-### wp embeds cache trigger
+### wp embed cache trigger
 
 Triggers a caching of all oEmbed results for a given post.
 
 ~~~
-wp embeds cache trigger <post_id>
+wp embed cache trigger <post_id>
 ~~~
 
 	<post_id>
