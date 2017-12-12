@@ -20,6 +20,8 @@ class HandlerCommand extends WP_CLI_Command {
 	/**
 	 * List all available embed handlers.
 	 *
+	 * ## OPTIONS
+	 *
 	 * [--field=<field>]
 	 * : Display the value of a single field
 	 *
