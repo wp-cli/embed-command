@@ -8,7 +8,7 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
-    When I run `wp embeds cache clear {POST_ID}`
+    When I run `wp embed cache clear {POST_ID}`
     Then STDOUT should be:
       """
       No metadata available for post with ID {POST_ID}!
@@ -24,14 +24,14 @@ Feature: Manage oEmbed cache.
       bar
       """
 
-    When I run `wp embeds cache clear 1`
+    When I run `wp embed cache clear 1`
     Then STDOUT should be:
       """
       Success: Successfully cleared oEmbed cache for post 1
       """
 
   Scenario: Trigger oEmbed cache for a non-existent post
-    When I run `wp embeds cache trigger 123456`
+    When I run `wp embed cache trigger 123456`
     Then STDERR should contain:
       """
       Post 123456 does not exist!
@@ -43,7 +43,7 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
-    When I run `wp embeds cache trigger {POST_ID}`
+    When I run `wp embed cache trigger {POST_ID}`
     Then STDERR should contain:
       """
       Cannot cache oEmbed results for revision post type
@@ -51,7 +51,7 @@ Feature: Manage oEmbed cache.
     And the return code should be 0
 
   Scenario: Find oEmbed cache post ID for a non-existent key
-    When I run `wp embeds cache find foo`
+    When I try `wp embed cache find foo`
     Then STDERR should be:
       """
       Error: No cache post ID found!
@@ -67,7 +67,7 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
-    When I run `wp embeds cache find foo --width=600 --height=400`
+    When I run `wp embed cache find foo --width=600 --height=400`
     Then STDOUT should be:
       """
      {POST_ID}
