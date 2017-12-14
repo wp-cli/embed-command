@@ -9,5 +9,5 @@ use WP_CLI\Dispatcher\CommandNamespace;
  *
  * @package wp-cli
  */
-class EmbedsNamespace extends CommandNamespace {
+class Embeds_Namespace extends CommandNamespace {
 }
