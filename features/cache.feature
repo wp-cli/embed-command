@@ -27,7 +27,7 @@ Feature: Manage oEmbed cache.
     When I run `wp embed cache clear 1`
     Then STDOUT should be:
       """
-      Success: Successfully cleared oEmbed cache for post 1
+      Success: Cleared oEmbed cache.
       """
 
   Scenario: Trigger oEmbed cache for a non-existent post
