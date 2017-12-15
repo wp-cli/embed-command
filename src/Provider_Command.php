@@ -17,7 +17,7 @@ class Provider_Command extends WP_CLI_Command {
 	);
 
 	/**
-	 * List all available oEmbed provider.
+	 * Lists all available oEmbed providers.
 	 *
 	 * ## OPTIONS
 	 *
@@ -93,7 +93,7 @@ class Provider_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Get provider for a given URL.
+	 * Gets the provider for a given URL.
 	 *
 	 * ## OPTIONS
 	 *
