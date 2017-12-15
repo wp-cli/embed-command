@@ -23,7 +23,7 @@ class Cache_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Clear cache for a post
-	 *     $ wp embeds cache clear 123
+	 *     $ wp embed cache clear 123
 	 */
 	public function clear( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
@@ -64,7 +64,7 @@ class Cache_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Find cache post ID for a given URL.
-	 *     $ wp embeds cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
+	 *     $ wp embed cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
 	 */
 	public function find( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
@@ -102,7 +102,7 @@ class Cache_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Clear cache for a post
-	 *     $ wp embeds cache trigger 456
+	 *     $ wp embed cache trigger 456
 	 */
 	public function trigger( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
