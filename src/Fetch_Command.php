@@ -15,6 +15,8 @@ class Fetch_Command extends WP_CLI_Command {
 	 * Starts by checking the URL against the regex of the registered embed handlers.
 	 * If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
 	 *
+	 * ## OPTIONS
+	 *
 	 * <url>
 	 * : URL to retrieve oEmbed data for.
 	 *
@@ -31,8 +33,8 @@ class Fetch_Command extends WP_CLI_Command {
 	 * : Ignore already cached oEmbed responses.
 	 *
 	 * [--raw]
-	 * : Return the raw oEmbed response instead of the resulting HTML.
-	 * : Only possible when there's no internal handler for the given URL.
+	 * : Return the raw oEmbed response instead of the resulting HTML. Only
+	 * possible when there's no internal handler for the given URL.
 	 *
 	 * [--dry-run]
 	 * : Do not perform any HTTP requests.
