@@ -56,7 +56,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # List format,endpoint fields of available providers.
-	 *     $ wp embeds provider list --fields=format,endpoint
+	 *     $ wp embed provider list --fields=format,endpoint
 	 *     +------------------------------+-----------------------------------------+
 	 *     | format                       | endpoint                                |
 	 *     +------------------------------+-----------------------------------------+
@@ -121,7 +121,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # List format,endpoint fields of available providers.
-	 *     $ wp embeds provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
+	 *     $ wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
 	 *
 	 * @subcommand get
 	 */

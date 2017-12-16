@@ -53,7 +53,7 @@ class Handler_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # List id,regex,priority fields of available handlers.
-	 *     $ wp embeds handler list --fields=priority,id
+	 *     $ wp embed handler list --fields=priority,id
 	 *     +----------+-------------------+
 	 *     | priority | id                |
 	 *     +----------+-------------------+
