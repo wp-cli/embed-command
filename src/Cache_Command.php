@@ -41,7 +41,7 @@ class Cache_Command extends WP_CLI_Command {
 
 		$wp_embed->delete_oembed_caches( $post_id );
 
-		WP_CLI::success( sprintf( 'Successfully cleared oEmbed cache for post %d', $post_id ) );
+		WP_CLI::success( 'Cleared oEmbed cache.' );
 	}
 
 	/**
