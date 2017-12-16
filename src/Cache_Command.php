@@ -9,9 +9,10 @@ use WP_CLI\Formatter;
 use WP_CLI_Command;
 
 /**
- * Manages oEmbed caches.
+ * Finds, triggers, and deletes oEmbed caches.
  */
 class Cache_Command extends WP_CLI_Command {
+
 	/**
 	 * Deletes all oEmbed caches for a given post.
 	 *
@@ -45,7 +46,7 @@ class Cache_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Find the oEmbed cache post ID for a given URL.
+	 * Finds the oEmbed cache post ID for a given URL.
 	 *
 	 * Starts by checking the URL against the regex of the registered embed handlers.
 	 * If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
