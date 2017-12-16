@@ -16,11 +16,13 @@ This package implements the following commands:
 Attempts to convert a URL into embed HTML.
 
 ~~~
-wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw]  Return the raw oEmbed response instead of the resulting HTML. [--dry-run] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw] [--dry-run] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
 Starts by checking the URL against the regex of the registered embed handlers.
 If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+
+**OPTIONS**
 
 	<url>
 		URL to retrieve oEmbed data for.
@@ -38,8 +40,8 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 		Ignore already cached oEmbed responses.
 
 	[--raw]
-		Return the raw oEmbed response instead of the resulting HTML.
-		: Only possible when there's no internal handler for the given URL.
+		Return the raw oEmbed response instead of the resulting HTML. Only
+		possible when there's no internal handler for the given URL.
 
 	[--dry-run]
 		Do not perform any HTTP requests.
