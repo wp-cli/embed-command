@@ -62,10 +62,10 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 **EXAMPLES**
 
     # Get embed HTML for a given URL.
-    $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
     # Get raw oEmbed data for a given URL.
-    $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
+    $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
 
 
 
@@ -114,7 +114,7 @@ These fields are optionally available:
 **EXAMPLES**
 
     # List format,endpoint fields of available providers.
-    $ wp embeds provider list --fields=format,endpoint
+    $ wp embed provider list --fields=format,endpoint
     +------------------------------+-----------------------------------------+
     | format                       | endpoint                                |
     +------------------------------+-----------------------------------------+
@@ -158,7 +158,7 @@ wp embed provider get <url> [--verbose] [--discover] [--limit-response-size=<siz
 **EXAMPLES**
 
     # List format,endpoint fields of available providers.
-    $ wp embeds provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    $ wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 
 
@@ -203,7 +203,7 @@ These fields are optionally available:
 **EXAMPLES**
 
     # List id,regex,priority fields of available handlers.
-    $ wp embeds handler list --fields=priority,id
+    $ wp embed handler list --fields=priority,id
     +----------+-------------------+
     | priority | id                |
     +----------+-------------------+
@@ -229,7 +229,7 @@ wp embed cache clear <post_id>
 **EXAMPLES**
 
     # Clear cache for a post
-    $ wp embeds cache clear 123
+    $ wp embed cache clear 123
 
 
 
@@ -258,7 +258,7 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 **EXAMPLES**
 
     # Find cache post ID for a given URL.
-    $ wp embeds cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
+    $ wp embed cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
 
 
 
@@ -278,7 +278,7 @@ wp embed cache trigger <post_id>
 **EXAMPLES**
 
     # Clear cache for a post
-    $ wp embeds cache trigger 456
+    $ wp embed cache trigger 456
 
 ## Installing
 

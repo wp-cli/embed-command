@@ -55,10 +55,10 @@ class Fetch_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Get embed HTML for a given URL.
-	 *     $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
+	 *     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
 	 *
 	 *     # Get raw oEmbed data for a given URL.
-	 *     $ wp embeds fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
+	 *     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
 	 */
 	public function __invoke( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
