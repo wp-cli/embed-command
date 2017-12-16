@@ -18,7 +18,7 @@ class Handler_Command extends WP_CLI_Command {
 	);
 
 	/**
-	 * List all available embed handlers.
+	 * Lists all available embed handlers.
 	 *
 	 * ## OPTIONS
 	 *

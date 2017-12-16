@@ -71,7 +71,7 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 
 ### wp embed provider list
 
-List all available oEmbed provider.
+Lists all available oEmbed providers.
 
 ~~~
 wp embed provider list [--field=<field>] [--fields=<fields>] [--format=<format>] [--force-regex]
@@ -126,7 +126,7 @@ These fields are optionally available:
 
 ### wp embed provider get
 
-Get provider for a given URL.
+Gets the provider for a given URL.
 
 ~~~
 wp embed provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
@@ -164,7 +164,7 @@ wp embed provider get <url> [--verbose] [--discover] [--limit-response-size=<siz
 
 ### wp embed handler list
 
-List all available embed handlers.
+Lists all available embed handlers.
 
 ~~~
 wp embed handler list [--field=<field>] [--fields=<fields>] [--format=<format>]
@@ -235,7 +235,7 @@ wp embed cache clear <post_id>
 
 ### wp embed cache find
 
-Find the oEmbed cache post ID for a given URL.
+Finds the oEmbed cache post ID for a given URL.
 
 ~~~
 wp embed cache find <url> [--width=<width>] [--height=<height>]
