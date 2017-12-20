@@ -40,7 +40,7 @@ class Fetch_Command extends WP_CLI_Command {
 	 * : Do not perform any HTTP requests.
 	 *
 	 * [--discover]
-	 * : Enabled oEmbed discovery. Defaults to true.
+	 * : Enable oEmbed discovery. Defaults to true.
 	 *
 	 * [--limit-response-size=<size>]
 	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB.
