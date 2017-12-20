@@ -36,9 +36,6 @@ class Fetch_Command extends WP_CLI_Command {
 	 * : Return the raw oEmbed response instead of the resulting HTML. Only
 	 * possible when there's no internal handler for the given URL.
 	 *
-	 * [--dry-run]
-	 * : Do not perform any HTTP requests.
-	 *
 	 * [--discover]
 	 * : Enable oEmbed discovery. Defaults to true.
 	 *
