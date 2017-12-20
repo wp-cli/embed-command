@@ -11,6 +11,18 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 
 This package implements the following commands:
 
+### wp embed
+
+Inspects oEmbed providers, clears embed cache, and more.
+
+~~~
+wp embed
+~~~
+
+
+
+
+
 ### wp embed fetch
 
 Attempts to convert a URL into embed HTML.

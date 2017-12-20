@@ -26,6 +26,7 @@
             "dev-master": "1.x-dev"
         },
         "commands": [
+            "embed",
             "embed fetch",
             "embed provider list",
             "embed provider get",
