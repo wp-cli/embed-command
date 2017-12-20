@@ -5,7 +5,7 @@ namespace WP_CLI\Embeds;
 use WP_CLI\Dispatcher\CommandNamespace;
 
 /**
- * Fetches and inspectes embeds
+ * Inspects oEmbed providers, clears embed cache, and more.
  *
  * @package wp-cli
  */
