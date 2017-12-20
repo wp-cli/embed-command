@@ -1,9 +1,9 @@
-wp-cli/embeds-command
-=====================
+wp-cli/embed-command
+====================
 
 Fetches and inspectes embeds
 
-[![Build Status](https://travis-ci.org/wp-cli/embeds-command.svg?branch=master)](https://travis-ci.org/wp-cli/embeds-command)
+[![Build Status](https://travis-ci.org/wp-cli/embed-command.svg?branch=master)](https://travis-ci.org/wp-cli/embed-command)
 
 Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contributing) | [Support](#support)
 
@@ -288,7 +288,7 @@ This package is included with WP-CLI itself, no additional installation necessar
 
 To install the latest version of this package over what's included in WP-CLI, run:
 
-    wp package install git@github.com:wp-cli/embeds-command.git
+    wp package install git@github.com:wp-cli/embed-command.git
 
 ## Contributing
 
@@ -302,13 +302,13 @@ For a more thorough introduction, [check out WP-CLI's guide to contributing](htt
 
 Think you’ve found a bug? We’d love for you to help us get it fixed.
 
-Before you create a new issue, you should [search existing issues](https://github.com/wp-cli/embeds-command/issues?q=label%3Abug%20) to see if there’s an existing resolution to it, or if it’s already been fixed in a newer version.
+Before you create a new issue, you should [search existing issues](https://github.com/wp-cli/embed-command/issues?q=label%3Abug%20) to see if there’s an existing resolution to it, or if it’s already been fixed in a newer version.
 
-Once you’ve done a bit of searching and discovered there isn’t an open or fixed issue for your bug, please [create a new issue](https://github.com/wp-cli/embeds-command/issues/new). Include as much detail as you can, and clear steps to reproduce if possible. For more guidance, [review our bug report documentation](https://make.wordpress.org/cli/handbook/bug-reports/).
+Once you’ve done a bit of searching and discovered there isn’t an open or fixed issue for your bug, please [create a new issue](https://github.com/wp-cli/embed-command/issues/new). Include as much detail as you can, and clear steps to reproduce if possible. For more guidance, [review our bug report documentation](https://make.wordpress.org/cli/handbook/bug-reports/).
 
 ### Creating a pull request
 
-Want to contribute a new feature? Please first [open a new issue](https://github.com/wp-cli/embeds-command/issues/new) to discuss whether the feature is a good fit for the project.
+Want to contribute a new feature? Please first [open a new issue](https://github.com/wp-cli/embed-command/issues/new) to discuss whether the feature is a good fit for the project.
 
 Once you've decided to commit the time to seeing your pull request through, [please follow our guidelines for creating a pull request](https://make.wordpress.org/cli/handbook/pull-requests/) to make sure it's a pleasant experience. See "[Setting up](https://make.wordpress.org/cli/handbook/pull-requests/#setting-up)" for details specific to working on this package locally.
 
