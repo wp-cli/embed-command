@@ -1,6 +1,6 @@
 {
     "name": "wp-cli/embed-command",
-    "description": "Fetches and inspectes embeds",
+    "description": "Inspects oEmbed providers, clears embed cache, and more.",
     "type": "wp-cli-package",
     "homepage": "https://github.com/wp-cli/embed-command",
     "license": "MIT",

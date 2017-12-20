@@ -1,7 +1,7 @@
 wp-cli/embed-command
 ====================
 
-Fetches and inspectes embeds
+Inspects oEmbed providers, clears embed cache, and more.
 
 [![Build Status](https://travis-ci.org/wp-cli/embed-command.svg?branch=master)](https://travis-ci.org/wp-cli/embed-command)
 
