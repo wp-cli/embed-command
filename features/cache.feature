@@ -9,9 +9,9 @@ Feature: Manage oEmbed cache.
     And save STDOUT as {POST_ID}
 
     When I run `wp embed cache clear {POST_ID}`
-    Then STDOUT should be:
+    Then STDERR should be:
       """
-      No metadata available for post with ID {POST_ID}!
+      Error: No cache to clear!
       """
 
   Scenario: Clear oEmbed cache for a post
