@@ -138,12 +138,12 @@ These fields are optionally available:
 
 
 
-### wp embed provider get
+### wp embed provider match
 
-Gets the provider for a given URL.
+Gets the matching provider for a given URL.
 
 ~~~
-wp embed provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed provider match <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
 **OPTIONS**
