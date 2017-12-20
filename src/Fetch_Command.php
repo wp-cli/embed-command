@@ -121,7 +121,7 @@ class Fetch_Command extends WP_CLI_Command {
 			}
 
 			if ( $raw ) {
-				WP_CLI::line( json_encode( $data ) );
+				WP_CLI::log( json_encode( $data ) );
 
 				return;
 			}
@@ -130,7 +130,7 @@ class Fetch_Command extends WP_CLI_Command {
 			$pre = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
 
 			if ( null !== $pre ) {
-				WP_CLI::line( is_string( $pre ) ? esc_html( $pre ) : json_encode( $pre ) );
+				WP_CLI::log( is_string( $pre ) ? esc_html( $pre ) : json_encode( $pre ) );
 
 				return;
 			}
@@ -142,7 +142,7 @@ class Fetch_Command extends WP_CLI_Command {
 				WP_CLI::error( 'There was an error fetching the oEmbed data.' );
 			}
 
-			WP_CLI::line( esc_html( $html ) );
+			WP_CLI::log( esc_html( $html ) );
 
 			return;
 		}
@@ -159,7 +159,7 @@ class Fetch_Command extends WP_CLI_Command {
 			WP_CLI::error( 'There was an error fetching the oEmbed data.' );
 		}
 
-		WP_CLI::line( $html );
+		WP_CLI::log( $html );
 	}
 
 	/**
