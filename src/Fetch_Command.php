@@ -43,7 +43,6 @@ class Fetch_Command extends WP_CLI_Command {
 	 * [--format=<format>]
 	 * : Which data format to prefer.
 	 * ---
-	 * default: json
 	 * options:
 	 *   - json
 	 *   - xml
