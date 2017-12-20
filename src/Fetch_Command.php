@@ -97,9 +97,9 @@ class Fetch_Command extends WP_CLI_Command {
 
 			if ( ! $provider ) {
 				if ( ! $discover ) {
-					WP_CLI::error( 'No oEmbed provider found for given URL.' );
-				} else {
 					WP_CLI::error( 'No oEmbed provider found for given URL. Maybe try discovery?' );
+				} else {
+					WP_CLI::error( 'No oEmbed provider found for given URL.' );
 				}
 			}
 
