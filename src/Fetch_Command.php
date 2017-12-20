@@ -121,7 +121,11 @@ class Fetch_Command extends WP_CLI_Command {
 			}
 
 			if ( $raw ) {
-				WP_CLI::log( json_encode( $data ) );
+				if ( 'xml' === $format && class_exists( 'SimpleXMLElement' ) ) {
+					WP_CLI::log( $this->_oembed_create_xml( (array) $data ) );
+				} else {
+					WP_CLI::log( json_encode( $data ) );
+				}
 
 				return;
 			}
@@ -130,7 +134,7 @@ class Fetch_Command extends WP_CLI_Command {
 			$pre = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
 
 			if ( null !== $pre ) {
-				WP_CLI::log( is_string( $pre ) ? esc_html( $pre ) : json_encode( $pre ) );
+				WP_CLI::log( $pre );
 
 				return;
 			}
@@ -239,5 +243,39 @@ class Fetch_Command extends WP_CLI_Command {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Creates an XML string from a given array.
+	 *
+	 * @see _oembed_create_xml()
+	 *
+	 * @param array            $data The original oEmbed response data.
+	 * @param \SimpleXMLElement $node Optional. XML node to append the result to recursively.
+	 * @return string|false XML string on success, false on error.
+	 */
+	protected function _oembed_create_xml( $data, $node = null ) {
+		if ( ! is_array( $data ) || empty( $data ) ) {
+			return false;
+		}
+
+		if ( null === $node ) {
+			$node = new \SimpleXMLElement( '<oembed></oembed>' );
+		}
+
+		foreach ( $data as $key => $value ) {
+			if ( is_numeric( $key ) ) {
+				$key = 'oembed';
+			}
+
+			if ( is_array( $value ) ) {
+				$item = $node->addChild( $key );
+				$this->_oembed_create_xml( $value, $item );
+			} else {
+				$node->addChild( $key, esc_html( $value ) );
+			}
+		}
+
+		return $node->asXML();
 	}
 }
