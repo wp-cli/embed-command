@@ -41,7 +41,7 @@ class Fetch_Command extends WP_CLI_Command {
 	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB.
 	 *
 	 * [--format=<format>]
-	 * : Which data format to prefer.
+	 * : Which data format to prefer when requesting oEmbed data.
 	 * ---
 	 * options:
 	 *   - json
