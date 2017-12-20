@@ -3,9 +3,7 @@
 namespace WP_CLI\Embeds;
 
 use WP_CLI;
-use WP_CLI\Process;
 use WP_CLI\Utils;
-use WP_CLI\Formatter;
 use WP_CLI_Command;
 
 class Fetch_Command extends WP_CLI_Command {
