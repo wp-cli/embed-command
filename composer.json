@@ -2,7 +2,7 @@
     "name": "wp-cli/embeds-command",
     "description": "Fetches and inspectes embeds",
     "type": "wp-cli-package",
-    "homepage": "https://github.com/wp-cli/embeds-command",
+    "homepage": "https://github.com/wp-cli/embed-command",
     "license": "MIT",
     "authors": [],
     "minimum-stability": "dev",
