@@ -1,5 +1,5 @@
 {
-    "name": "wp-cli/embeds-command",
+    "name": "wp-cli/embed-command",
     "description": "Fetches and inspectes embeds",
     "type": "wp-cli-package",
     "homepage": "https://github.com/wp-cli/embed-command",
