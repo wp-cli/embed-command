@@ -1,6 +1,6 @@
 # Used by Probot Settings: https://probot.github.io/apps/settings/
 repository:
-  description: Fetches and inspectes embeds
+  description: Inspects oEmbed providers, clears embed cache, and more.
 labels:
   - name: bug
     color: fc2929
@@ -20,7 +20,17 @@ labels:
     color: bfe5bf
   - name: wontfix
     color: c2e0c6
-  - name: command:embeds-fetch
+  - name: command:embed-fetch
     color: c5def5
-  - name: command:embeds-provider-list
+  - name: command:embed-provider-list
+    color: c5def5
+  - name: command:embed-provider-get
+    color: c5def5
+  - name: command:embed-handler-list
+    color: c5def5
+  - name: command:embed-cache-clear
+    color: c5def5
+  - name: command:embed-cache-find
+    color: c5def5
+  - name: command:embed-cache-trigger
     color: c5def5
