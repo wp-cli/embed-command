@@ -62,6 +62,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 		$url                 = $args[0];
 		$raw                 = Utils\get_flag_value( $assoc_args, 'raw' );
+		$format              = Utils\get_flag_value( $assoc_args, 'format' );
 		$post_id             = Utils\get_flag_value( $assoc_args, 'post-id' );
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
@@ -75,6 +76,22 @@ class Fetch_Command extends WP_CLI_Command {
 		if ( $response_size_limit ) {
 			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
 				$args['limit_response_size'] = $response_size_limit;
+
+				return $args;
+			} );
+		}
+
+		if ( $format ) {
+			// For discovery.
+			add_filter( 'oembed_linktypes', function ( $linktypes ) use ( $format ) {
+				return array_filter( $linktypes, function ( $f ) use ( $format ) {
+					return $f === $format;
+				} );
+			} );
+
+			// For direct requests.
+			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $format ) {
+				$args['format'] = $format;
 
 				return $args;
 			} );
