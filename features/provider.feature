@@ -74,8 +74,8 @@ Feature: Manage oEmbed providers.
       | #https?://www\.someecards\.com/usercards/viewcard/.+#i                     | https://www.someecards.com/v2/oembed/                                 |
       | #https?://some\.ly\/.+#i                                                   | https://www.someecards.com/v2/oembed/                                 |
 
-  Scenario: Get an oEmbed provider
-    When I run `wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+  Scenario: Match an oEmbed provider
+    When I run `wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ`
     And STDOUT should be:
       """
       https://www.youtube.com/oembed

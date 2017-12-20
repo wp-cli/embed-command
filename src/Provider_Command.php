@@ -93,7 +93,7 @@ class Provider_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Gets the provider for a given URL.
+	 * Gets the matching provider for a given URL.
 	 *
 	 * ## OPTIONS
 	 *
@@ -123,9 +123,9 @@ class Provider_Command extends WP_CLI_Command {
 	 *     # List format,endpoint fields of available providers.
 	 *     $ wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
 	 *
-	 * @subcommand get
+	 * @subcommand match
 	 */
-	public function get_provider( $args, $assoc_args ) {
+	public function match_provider( $args, $assoc_args ) {
 		$oembed = _wp_oembed_get_object();
 
 		$url                 = $args[0];
