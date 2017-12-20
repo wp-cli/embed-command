@@ -9,7 +9,7 @@
     "prefer-stable": true,
     "autoload": {
         "files": [
-            "embeds-command.php"
+            "embed-command.php"
         ],
         "psr-4": {
             "WP_CLI\\Embeds\\": "src/"
