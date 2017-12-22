@@ -68,6 +68,10 @@ class Cache_Command extends WP_CLI_Command {
 	 *     $ wp embed cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
 	 */
 	public function find( $args, $assoc_args ) {
+		if ( Utils\wp_version_compare( '4.9', '<' ) ) {
+			WP_CLI::error( 'Requires WordPress 4.9 or greater.' );
+		}
+
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
