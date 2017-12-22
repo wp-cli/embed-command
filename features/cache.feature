@@ -31,7 +31,7 @@ Feature: Manage oEmbed cache.
       """
 
   Scenario: Trigger oEmbed cache for a non-existent post
-    When I run `wp embed cache trigger 123456`
+    When I try `wp embed cache trigger 123456`
     Then STDERR should contain:
       """
       Post 123456 does not exist!
@@ -43,7 +43,7 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
-    When I run `wp embed cache trigger {POST_ID}`
+    When I try `wp embed cache trigger {POST_ID}`
     Then STDERR should contain:
       """
       Cannot cache oEmbed results for revision post type
