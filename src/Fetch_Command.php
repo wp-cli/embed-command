@@ -91,7 +91,7 @@ class Fetch_Command extends WP_CLI_Command {
 			remove_filter( 'pre_oembed_result', 'wp_filter_pre_oembed_result' );
 			add_filter( 'pre_oembed_result', array( $this, 'filter_pre_oembed_result' ), 10, 3 );
 
-			$oembed = _wp_oembed_get_object();
+			$oembed = \_wp_oembed_get_object();
 
 			$provider = $oembed->get_provider( $url, $oembed_args );
 
@@ -217,7 +217,7 @@ class Fetch_Command extends WP_CLI_Command {
 		$width = isset( $args['width'] ) ? $args['width'] : 0;
 
 		$data = get_oembed_response_data( $post_id, $width );
-		// $data = _wp_oembed_get_object()->data2html( (object) $data, $url );
+		// $data = \_wp_oembed_get_object()->data2html( (object) $data, $url );
 
 		if ( $switched_blog ) {
 			restore_current_blog();
