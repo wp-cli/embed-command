@@ -67,7 +67,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * @subcommand list
 	 */
 	public function list_providers( $args, $assoc_args ) {
-		$oembed = _wp_oembed_get_object();
+		$oembed = \_wp_oembed_get_object();
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
 
@@ -126,7 +126,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * @subcommand get
 	 */
 	public function get_provider( $args, $assoc_args ) {
-		$oembed = _wp_oembed_get_object();
+		$oembed = \_wp_oembed_get_object();
 
 		$url                 = $args[0];
 		$discover            = \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
