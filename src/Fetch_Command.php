@@ -3,9 +3,7 @@
 namespace WP_CLI\Embeds;
 
 use WP_CLI;
-use WP_CLI\Process;
 use WP_CLI\Utils;
-use WP_CLI\Formatter;
 use WP_CLI_Command;
 
 class Fetch_Command extends WP_CLI_Command {
@@ -36,19 +34,15 @@ class Fetch_Command extends WP_CLI_Command {
 	 * : Return the raw oEmbed response instead of the resulting HTML. Only
 	 * possible when there's no internal handler for the given URL.
 	 *
-	 * [--dry-run]
-	 * : Do not perform any HTTP requests.
-	 *
 	 * [--discover]
-	 * : Enabled oEmbed discovery. Defaults to true.
+	 * : Enable oEmbed discovery. Defaults to true.
 	 *
 	 * [--limit-response-size=<size>]
 	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB.
 	 *
 	 * [--format=<format>]
-	 * : Which data format to prefer.
+	 * : Which data format to prefer when requesting oEmbed data.
 	 * ---
-	 * default: json
 	 * options:
 	 *   - json
 	 *   - xml
@@ -68,6 +62,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 		$url                 = $args[0];
 		$raw                 = Utils\get_flag_value( $assoc_args, 'raw' );
+		$format              = Utils\get_flag_value( $assoc_args, 'format' );
 		$post_id             = Utils\get_flag_value( $assoc_args, 'post-id' );
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
@@ -86,6 +81,22 @@ class Fetch_Command extends WP_CLI_Command {
 			} );
 		}
 
+		if ( $format ) {
+			// For discovery.
+			add_filter( 'oembed_linktypes', function ( $linktypes ) use ( $format ) {
+				return array_filter( $linktypes, function ( $f ) use ( $format ) {
+					return $f === $format;
+				} );
+			} );
+
+			// For direct requests.
+			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $format ) {
+				$args['format'] = $format;
+
+				return $args;
+			} );
+		}
+
 		// WP_Embed::shortcode() can't return raw data, which means we need to use WP_oEmbed.
 		if ( $raw ) {
 
@@ -98,9 +109,9 @@ class Fetch_Command extends WP_CLI_Command {
 
 			if ( ! $provider ) {
 				if ( ! $discover ) {
-					WP_CLI::error( 'No oEmbed provider found for given URL.' );
-				} else {
 					WP_CLI::error( 'No oEmbed provider found for given URL. Maybe try discovery?' );
+				} else {
+					WP_CLI::error( 'No oEmbed provider found for given URL.' );
 				}
 			}
 
@@ -111,7 +122,11 @@ class Fetch_Command extends WP_CLI_Command {
 			}
 
 			if ( $raw ) {
-				WP_CLI::line( $data );
+				if ( 'xml' === $format && class_exists( 'SimpleXMLElement' ) ) {
+					WP_CLI::log( $this->_oembed_create_xml( (array) $data ) );
+				} else {
+					WP_CLI::log( json_encode( $data ) );
+				}
 
 				return;
 			}
@@ -120,7 +135,7 @@ class Fetch_Command extends WP_CLI_Command {
 			$pre = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
 
 			if ( null !== $pre ) {
-				WP_CLI::line( $pre );
+				WP_CLI::log( $pre );
 
 				return;
 			}
@@ -132,7 +147,7 @@ class Fetch_Command extends WP_CLI_Command {
 				WP_CLI::error( 'There was an error fetching the oEmbed data.' );
 			}
 
-			WP_CLI::line( $html );
+			WP_CLI::log( esc_html( $html ) );
 
 			return;
 		}
@@ -149,7 +164,7 @@ class Fetch_Command extends WP_CLI_Command {
 			WP_CLI::error( 'There was an error fetching the oEmbed data.' );
 		}
 
-		WP_CLI::line( $html );
+		WP_CLI::log( $html );
 	}
 
 	/**
@@ -229,5 +244,39 @@ class Fetch_Command extends WP_CLI_Command {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Creates an XML string from a given array.
+	 *
+	 * @see _oembed_create_xml()
+	 *
+	 * @param array            $data The original oEmbed response data.
+	 * @param \SimpleXMLElement $node Optional. XML node to append the result to recursively.
+	 * @return string|false XML string on success, false on error.
+	 */
+	protected function _oembed_create_xml( $data, $node = null ) {
+		if ( ! is_array( $data ) || empty( $data ) ) {
+			return false;
+		}
+
+		if ( null === $node ) {
+			$node = new \SimpleXMLElement( '<oembed></oembed>' );
+		}
+
+		foreach ( $data as $key => $value ) {
+			if ( is_numeric( $key ) ) {
+				$key = 'oembed';
+			}
+
+			if ( is_array( $value ) ) {
+				$item = $node->addChild( $key );
+				$this->_oembed_create_xml( $value, $item );
+			} else {
+				$node->addChild( $key, esc_html( $value ) );
+			}
+		}
+
+		return $node->asXML();
 	}
 }
