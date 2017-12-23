@@ -38,8 +38,8 @@ Feature: Manage oEmbed providers.
       spotify.com
       """
 
-  Scenario: Get an oEmbed provider
-    When I run `wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+  Scenario: Match an oEmbed provider
+    When I run `wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ`
     And STDOUT should contain:
       """
       //www.youtube.com/oembed
