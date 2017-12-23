@@ -23,7 +23,8 @@ Feature: Manage oEmbed cache.
 
   Scenario: Bails when no oEmbed provider is found for a raw request
     When I try `wp embed fetch https://foo.example.com --raw`
-    Then STDERR should be:
+    # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices so use "contain" to ignore these.
+    Then STDERR should contain:
       """
       Error: No oEmbed provider found for given URL.
       """
