@@ -67,6 +67,10 @@ class Provider_Command extends WP_CLI_Command {
 	 * @subcommand list
 	 */
 	public function list_providers( $args, $assoc_args ) {
+		if ( ! function_exists( '_wp_oembed_get_object' ) ) {
+			require_once ABSPATH . WPINC . '/class-oembed.php';
+		}
+
 		$oembed = \_wp_oembed_get_object();
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
@@ -126,6 +130,10 @@ class Provider_Command extends WP_CLI_Command {
 	 * @subcommand get
 	 */
 	public function get_provider( $args, $assoc_args ) {
+		if ( ! function_exists( '_wp_oembed_get_object' ) ) {
+			require_once ABSPATH . WPINC . '/class-oembed.php';
+		}
+
 		$oembed = \_wp_oembed_get_object();
 
 		$url                 = $args[0];
