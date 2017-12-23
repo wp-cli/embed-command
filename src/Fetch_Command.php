@@ -88,14 +88,11 @@ class Fetch_Command extends WP_CLI_Command {
 
 		// WP_Embed::shortcode() can't return raw data, which means we need to use WP_oEmbed.
 		if ( $raw ) {
-			if ( ! function_exists( '_wp_oembed_get_object' ) ) {
-				require_once ABSPATH . WPINC . '/class-oembed.php';
-			}
 
 			remove_filter( 'pre_oembed_result', 'wp_filter_pre_oembed_result' );
 			add_filter( 'pre_oembed_result', array( $this, 'filter_pre_oembed_result' ), 10, 3 );
 
-			$oembed = \_wp_oembed_get_object();
+			$oembed = new oEmbed;
 
 			$provider = $oembed->get_provider( $url, $oembed_args );
 
