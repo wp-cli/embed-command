@@ -29,7 +29,7 @@
             "embed",
             "embed fetch",
             "embed provider list",
-            "embed provider get",
+            "embed provider match",
             "embed handler list",
             "embed cache clear",
             "embed cache find",
