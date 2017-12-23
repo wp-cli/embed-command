@@ -138,12 +138,12 @@ These fields are optionally available:
 
 
 
-### wp embed provider get
+### wp embed provider match
 
-Gets the provider for a given URL.
+Gets the matching provider for a given URL.
 
 ~~~
-wp embed provider get <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed provider match <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -255,8 +255,8 @@ Finds the oEmbed cache post ID for a given URL.
 wp embed cache find <url> [--width=<width>] [--height=<height>]
 ~~~
 
-Starts by checking the URL against the regex of the registered embed handlers.
-If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+Starting with WordPress 4.9, embeds that aren't associated with a specific post will be cached in
+a new oembed_cache post type.
 
 **OPTIONS**
 
