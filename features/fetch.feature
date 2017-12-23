@@ -5,9 +5,13 @@ Feature: Manage oEmbed cache.
 
   Scenario: Get HTML embed code for a given URL
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500`
-    Then STDOUT should be:
+    Then STDOUT should contain:
       """
-      <iframe width="500" height="281" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
+      https://www.youtube.com/
+      """
+    And STDOUT should contain:
+      """
+      dQw4w9WgXcQ
       """
 
   Scenario: Get raw oEmbed data for a given URL
@@ -18,14 +22,14 @@ Feature: Manage oEmbed cache.
       """
 
   Scenario: Bails when no oEmbed provider is found for a raw request
-    When I run `wp embed fetch https://foo.example.com --raw`
+    When I try `wp embed fetch https://foo.example.com --raw`
     Then STDERR should be:
       """
       Error: No oEmbed provider found for given URL.
       """
 
   Scenario: Bails when no oEmbed provider is found for a raw request is found and discovery is off
-    When I run `wp embed fetch https://foo.example.com --raw --discover=0`
+    When I try `wp embed fetch https://foo.example.com --raw --discover=0`
     Then STDERR should be:
       """
       Error: No oEmbed provider found for given URL. Maybe try discovery?
