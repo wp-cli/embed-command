@@ -67,7 +67,8 @@ class Provider_Command extends WP_CLI_Command {
 	 * @subcommand list
 	 */
 	public function list_providers( $args, $assoc_args ) {
-		$oembed = _wp_oembed_get_object();
+
+		$oembed = new oEmbed;
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
 
@@ -93,7 +94,7 @@ class Provider_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Gets the provider for a given URL.
+	 * Gets the matching provider for a given URL.
 	 *
 	 * ## OPTIONS
 	 *
@@ -123,10 +124,10 @@ class Provider_Command extends WP_CLI_Command {
 	 *     # List format,endpoint fields of available providers.
 	 *     $ wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
 	 *
-	 * @subcommand get
+	 * @subcommand match
 	 */
-	public function get_provider( $args, $assoc_args ) {
-		$oembed = _wp_oembed_get_object();
+	public function match_provider( $args, $assoc_args ) {
+		$oembed = new oEmbed;
 
 		$url                 = $args[0];
 		$discover            = \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );

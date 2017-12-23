@@ -31,7 +31,7 @@ Feature: Manage oEmbed cache.
       """
 
   Scenario: Trigger oEmbed cache for a non-existent post
-    When I run `wp embed cache trigger 123456`
+    When I try `wp embed cache trigger 123456`
     Then STDERR should contain:
       """
       Post 123456 does not exist!
@@ -43,13 +43,14 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
-    When I run `wp embed cache trigger {POST_ID}`
+    When I try `wp embed cache trigger {POST_ID}`
     Then STDERR should contain:
       """
       Cannot cache oEmbed results for revision post type
       """
     And the return code should be 0
 
+  @require-wp-4.9
   Scenario: Find oEmbed cache post ID for a non-existent key
     When I try `wp embed cache find foo`
     Then STDERR should be:
@@ -58,6 +59,7 @@ Feature: Manage oEmbed cache.
       """
     And the return code should be 1
 
+  @require-wp-4.9
   Scenario: Find oEmbed cache post ID for an existing key
     When I run `wp eval 'echo md5( "foo" . serialize( array( "width" => 600, "height" => 400 ) ) );'`
     Then STDOUT should not be empty
