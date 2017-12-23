@@ -8,7 +8,7 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
     And save STDOUT as {POST_ID}
 
-    When I run `wp embed cache clear {POST_ID}`
+    When I try `wp embed cache clear {POST_ID}`
     Then STDERR should be:
       """
       Error: No cache to clear!
