@@ -40,7 +40,7 @@ Feature: Manage oEmbed providers.
 
   Scenario: Match an oEmbed provider
     When I run `wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ`
-    And STDOUT should be:
+    And STDOUT should contain:
       """
       //www.youtube.com/oembed
       """
