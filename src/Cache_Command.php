@@ -35,7 +35,7 @@ class Cache_Command extends WP_CLI_Command {
 		$post_metas = get_post_custom_keys( $post_id );
 
 		if ( empty( $post_metas ) ) {
-			WP_CLI::error( 'No cache to clear.' );
+			WP_CLI::error( 'No cache to clear!' );
 		}
 
 		$wp_embed->delete_oembed_caches( $post_id );
