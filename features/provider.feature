@@ -3,6 +3,7 @@ Feature: Manage oEmbed providers.
   Background:
     Given a WP install
 
+  @require-wp-4.9
   Scenario: List oEmbed providers
     When I run `wp embed provider list --fields=format,endpoint`
     Then STDOUT should be a table containing rows:
