@@ -28,7 +28,7 @@ wp embed
 Attempts to convert a URL into embed HTML.
 
 ~~~
-wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw] [--dry-run] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw] [--discover] [--limit-response-size=<size>] [--format=<format>]
 ~~~
 
 Starts by checking the URL against the regex of the registered embed handlers.
@@ -55,19 +55,15 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 		Return the raw oEmbed response instead of the resulting HTML. Only
 		possible when there's no internal handler for the given URL.
 
-	[--dry-run]
-		Do not perform any HTTP requests.
-
 	[--discover]
-		Enabled oEmbed discovery. Defaults to true.
+		Enable oEmbed discovery. Defaults to true.
 
 	[--limit-response-size=<size>]
 		Limit the size of the resulting HTML when using discovery. Default 150 KB.
 
 	[--format=<format>]
-		Which data format to prefer.
+		Which data format to prefer when requesting oEmbed data.
 		---
-		default: json
 		options:
 		  - json
 		  - xml
