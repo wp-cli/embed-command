@@ -10,8 +10,10 @@ class Fetch_Command extends WP_CLI_Command {
 	/**
 	 * Attempts to convert a URL into embed HTML.
 	 *
-	 * Starts by checking the URL against the regex of the registered embed handlers.
+	 * In non-raw mode, starts by checking the URL against the regex of the registered embed handlers.
 	 * If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+	 *
+	 * In raw mode, checks the providers directly and returns the data.
 	 *
 	 * ## OPTIONS
 	 *
@@ -28,20 +30,19 @@ class Fetch_Command extends WP_CLI_Command {
 	 * : Cache oEmbed response for a given post.
 	 *
 	 * [--skip-cache]
-	 * : Ignore already cached oEmbed responses.
-	 *
-	 * [--raw]
-	 * : Return the raw oEmbed response instead of the resulting HTML. Only
-	 * possible when there's no internal handler for the given URL.
+	 * : Ignore already cached oEmbed responses. Has no effect if using the 'raw' option, which doesn't use the cache.
 	 *
 	 * [--discover]
 	 * : Enable oEmbed discovery. Defaults to true.
 	 *
 	 * [--limit-response-size=<size>]
-	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB.
+	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB (the standard WordPress limit). Not compatible with 'no-discover'.
 	 *
-	 * [--format=<format>]
-	 * : Which data format to prefer when requesting oEmbed data.
+	 * [--raw]
+	 * : Return the raw oEmbed response instead of the resulting HTML. Ignores the cache.
+	 *
+	 * [--raw-format=<json|xml>]
+	 * : Render raw oEmbed data in a particular format. Defaults to json. Can only be specified in conjunction with the 'raw' option.
 	 * ---
 	 * options:
 	 *   - json
@@ -52,9 +53,11 @@ class Fetch_Command extends WP_CLI_Command {
 	 *
 	 *     # Get embed HTML for a given URL.
 	 *     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
+	 *     <iframe width="525" height="295" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" ...
 	 *
 	 *     # Get raw oEmbed data for a given URL.
-	 *     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
+	 *     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw
+	 *     {"type":"video","thumbnail_width":480,"height":295,"author_name":"RickAstleyVEVO","html":"<iframe width=\"525\" ...
 	 */
 	public function __invoke( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
@@ -62,18 +65,38 @@ class Fetch_Command extends WP_CLI_Command {
 
 		$url                 = $args[0];
 		$raw                 = Utils\get_flag_value( $assoc_args, 'raw' );
-		$format              = Utils\get_flag_value( $assoc_args, 'format' );
+		$raw_format          = Utils\get_flag_value( $assoc_args, 'raw-format' );
 		$post_id             = Utils\get_flag_value( $assoc_args, 'post-id' );
-		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
+		$discover            = Utils\get_flag_value( $assoc_args, 'discover' );
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
 
-		$oembed_args = array(
-			'discover' => $discover,
-			'width' => Utils\get_flag_value( $assoc_args, 'width' ),
-			'height' => Utils\get_flag_value( $assoc_args, 'height' ),
-		);
+		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
+		$oembed_args = array();
+		if ( null !== ( $width = Utils\get_flag_value( $assoc_args, 'width' ) ) ) {
+			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
+		}
+		if ( null !== ( $height = Utils\get_flag_value( $assoc_args, 'height' ) ) ) {
+			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
+		}
+		if ( null !== $discover ) {
+			$oembed_args['discover'] = $discover ? '1' : '0'; // Make it a string as if from a shortcode attribute.
+		}
+
+		$discover = null === $discover ? true : (bool) $discover;
+
+		if ( ! $discover && null !== $response_size_limit ) {
+			WP_CLI::error( "The 'limit-response-size' option can only be used with discovery." );
+		}
+
+		if ( ! $raw && null !== $raw_format ) {
+			WP_CLI::error( "The 'raw-format' option can only be used with the 'raw' option." );
+		}
 
 		if ( $response_size_limit ) {
+			if ( Utils\wp_version_compare( '4.0', '<' ) ) {
+				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
+				// Fall through anyway...
+			}
 			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
 				$args['limit_response_size'] = $response_size_limit;
 
@@ -81,27 +104,8 @@ class Fetch_Command extends WP_CLI_Command {
 			} );
 		}
 
-		if ( $format ) {
-			// For discovery.
-			add_filter( 'oembed_linktypes', function ( $linktypes ) use ( $format ) {
-				return array_filter( $linktypes, function ( $f ) use ( $format ) {
-					return $f === $format;
-				} );
-			} );
-
-			// For direct requests.
-			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $format ) {
-				$args['format'] = $format;
-
-				return $args;
-			} );
-		}
-
-		// WP_Embed::shortcode() can't return raw data, which means we need to use WP_oEmbed.
+		// If raw, query providers directly, by-passing cache.
 		if ( $raw ) {
-
-			remove_filter( 'pre_oembed_result', 'wp_filter_pre_oembed_result' );
-			add_filter( 'pre_oembed_result', array( $this, 'filter_pre_oembed_result' ), 10, 3 );
 
 			$oembed = new oEmbed;
 
@@ -121,44 +125,57 @@ class Fetch_Command extends WP_CLI_Command {
 				WP_CLI::error( 'There was an error fetching the oEmbed data.' );
 			}
 
-			if ( $raw ) {
-				if ( 'xml' === $format && class_exists( 'SimpleXMLElement' ) ) {
-					WP_CLI::log( $this->_oembed_create_xml( (array) $data ) );
-				} else {
-					WP_CLI::log( json_encode( $data ) );
+			if ( 'xml' === $raw_format ) {
+				if ( ! class_exists( 'SimpleXMLElement' ) ) {
+					WP_CLI::error( "The PHP extension 'SimpleXMLElement' is not available but is required for XML-formatted output." );
 				}
-
-				return;
+				WP_CLI::log( $this->_oembed_create_xml( (array) $data ) );
+			} else {
+				WP_CLI::log( json_encode( $data ) );
 			}
-
-			/** This filter is documented in wp-includes/class-oembed.php */
-			$pre = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
-
-			if ( null !== $pre ) {
-				WP_CLI::log( $pre );
-
-				return;
-			}
-
-			/** This filter is documented in wp-includes/class-oembed.php */
-			$html = apply_filters( 'oembed_result', $oembed->data2html( $data, $url ), $url, $oembed_args );
-
-			if ( false === $html ) {
-				WP_CLI::error( 'There was an error fetching the oEmbed data.' );
-			}
-
-			WP_CLI::log( esc_html( $html ) );
 
 			return;
 		}
 
 		if ( $post_id ) {
 			$GLOBALS['post'] = get_post( $post_id );
+			if ( null === $GLOBALS['post'] ) {
+				WP_CLI::warning( sprintf( "Post id '%s' not found.", $post_id ) );
+			}
 		}
 
-		$wp_embed->usecache = ! Utils\get_flag_value( $assoc_args, 'skip-cache' );
+		$skip_cache = Utils\get_flag_value( $assoc_args, 'skip-cache' );
+		if ( $skip_cache ) {
+			$wp_embed->usecache = false;
+			// In order to skip caching, also need `$cached_recently` to be false in `WP_Embed::shortcode()`, so set TTL to zero.
+			add_filter( 'oembed_ttl', '__return_zero' );
+		} else {
+			$wp_embed->usecache = true;
+		}
+
+		if ( ! $discover ) {
+			// `WP_Embed::shortcode()` sets the 'discover' attribute based on this filter, no matter what's passed to it, so set to false.
+			add_filter( 'embed_oembed_discover', '__return_false' );
+		}
+
+		// For WP < 4.9, `WP_Embed::shortcode()` won't check providers if no post_id supplied, so set maybe_make_link to return false so can check and do it ourselves.
+		if ( $check_providers = ( Utils\wp_version_compare( '4.9', '<' ) && ! $post_id ) ) {
+			add_filter( 'embed_maybe_make_link', '__return_false' );
+		}
 
 		$html = $wp_embed->shortcode( $oembed_args, $url );
+
+		if ( false === $html && $check_providers ) {
+
+			// Check providers.
+			$html = wp_oembed_get( $url, $oembed_args );
+
+			if ( ! $html ) {
+				// Return a clickable link for compatibility with WP 4.9 behaviour.
+				remove_filter( 'embed_maybe_make_link', '__return_false' );
+				$html = $wp_embed->maybe_make_link( $url );
+			}
+		}
 
 		if ( false === $html ) {
 			WP_CLI::error( 'There was an error fetching the oEmbed data.' );
@@ -168,86 +185,9 @@ class Fetch_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Filters the oEmbed result before any HTTP requests are made.
-	 *
-	 * If the URL belongs to the current site, the result is fetched directly instead of
-	 * going through the oEmbed discovery process.
-	 *
-	 * This function is identical to wp_filter_pre_oembed_result() with the exception that it
-	 * returns the raw oEmbed data instead of just the resulting HTML.
-	 *
-	 * @param null|string $result The UNSANITIZED (and potentially unsafe) HTML that should be used to embed. Default null.
-	 * @param string      $url    The URL that should be inspected for discovery `<link>` tags.
-	 * @param array       $args   oEmbed remote get arguments.
-	 * @return null|string The UNSANITIZED (and potentially unsafe) HTML that should be used to embed.
-	 *                     Null if the URL does not belong to the current site.
-	 */
-	protected function filter_pre_oembed_result( $result, $url, $args ) {
-		$switched_blog = false;
-
-		if ( is_multisite() ) {
-			$url_parts = wp_parse_args(
-				wp_parse_url( $url ), array(
-					'host' => '',
-					'path' => '/',
-				)
-			);
-
-			$qv = array(
-				'domain' => $url_parts['host'],
-				'path'   => '/',
-			);
-
-			// In case of subdirectory configs, set the path.
-			if ( ! is_subdomain_install() ) {
-				$path = explode( '/', ltrim( $url_parts['path'], '/' ) );
-				$path = reset( $path );
-
-				if ( $path ) {
-					$qv['path'] = get_network()->path . $path . '/';
-				}
-			}
-
-			$sites = get_sites( $qv );
-			$site  = reset( $sites );
-
-			if ( $site && (int) $site->blog_id !== get_current_blog_id() ) {
-				switch_to_blog( $site->blog_id );
-				$switched_blog = true;
-			}
-		}
-
-		$post_id = url_to_postid( $url );
-
-		/** This filter is documented in wp-includes/class-wp-oembed-controller.php */
-		$post_id = apply_filters( 'oembed_request_post_id', $post_id, $url );
-
-		if ( ! $post_id ) {
-			if ( $switched_blog ) {
-				restore_current_blog();
-			}
-
-			return $result;
-		}
-
-		$width = isset( $args['width'] ) ? $args['width'] : 0;
-
-		$data = get_oembed_response_data( $post_id, $width );
-		// $data = \_wp_oembed_get_object()->data2html( (object) $data, $url );
-
-		if ( $switched_blog ) {
-			restore_current_blog();
-		}
-
-		if ( ! $data ) {
-			return $result;
-		}
-
-		return $data;
-	}
-
-	/**
 	 * Creates an XML string from a given array.
+	 *
+	 * Same as `\_oembed_create_xml()` in "wp-includes\embed.php" introduced in WP 4.4.0. Polyfilled as marked private (and also to cater for older WP versions).
 	 *
 	 * @see _oembed_create_xml()
 	 *
