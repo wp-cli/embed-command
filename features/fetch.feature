@@ -142,7 +142,7 @@ Feature: Manage oEmbed cache.
       {DEFAULT_STDOUT}
       """
 
-  # Same as above but without the post_id. WP > 4.9 only
+  # Same as above but without the post_id. WP >= 4.9 only
   @require-wp-4.9
   Scenario: Get embed code for a URL with limited response size and post-less cache
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ`
@@ -182,6 +182,21 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be:
       """
       {DEFAULT_STDOUT}
+      """
+
+  # Depends on `wp_filter_pre_oembed_result` filter introduced WP 4.5.3 https://core.trac.wordpress.org/ticket/36767
+  @require-wp-4.5.3
+  Scenario: Fetch locally provided URL
+    When I run `wp embed fetch http://example.com/?p=1`
+    Then STDOUT should contain:
+      """
+      Hello world!
+      """
+
+    When I run `wp embed fetch http://example.com/?p=1 --raw`
+    Then STDOUT should contain:
+      """
+      Hello world!
       """
 
   Scenario: Incompatible options

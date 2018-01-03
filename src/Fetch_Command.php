@@ -109,17 +109,29 @@ class Fetch_Command extends WP_CLI_Command {
 
 			$oembed = new oEmbed;
 
-			$provider = $oembed->get_provider( $url, $oembed_args );
+			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
 
-			if ( ! $provider ) {
-				if ( ! $discover ) {
-					WP_CLI::error( 'No oEmbed provider found for given URL. Maybe try discovery?' );
-				} else {
-					WP_CLI::error( 'No oEmbed provider found for given URL.' );
+			// Before applying 'pre_oembed_result', make `WP_oEmbed::data2html()` a no-op so get raw data.
+			add_filter( 'oembed_dataparse', function ( $return, $data, $url ) {
+				return $data;
+			}, 9999, 3 ); // Need large priority to avoid `_strip_newlines` filter added in `WP_oEmbed::__construct()`.
+
+			$data = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
+
+			if ( null === $data ) {
+
+				$provider = $oembed->get_provider( $url, $oembed_args );
+
+				if ( ! $provider ) {
+					if ( ! $discover ) {
+						WP_CLI::error( 'No oEmbed provider found for given URL. Maybe try discovery?' );
+					} else {
+						WP_CLI::error( 'No oEmbed provider found for given URL.' );
+					}
 				}
-			}
 
-			$data = $oembed->fetch( $provider, $url, $oembed_args );
+				$data = $oembed->fetch( $provider, $url, $oembed_args );
+			}
 
 			if ( false === $data ) {
 				WP_CLI::error( 'There was an error fetching the oEmbed data.' );
