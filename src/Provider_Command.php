@@ -11,7 +11,7 @@ use WP_CLI_Command;
  * Retrieves oEmbed providers.
  */
 class Provider_Command extends WP_CLI_Command {
-	protected $possible_fields = array(
+	protected $default_fields = array(
 		'format',
 		'endpoint',
 	);
@@ -38,7 +38,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * ---
 	 *
 	 * [--force-regex]
-	 * : Turn the asterisk-type provider URLs into regex
+	 * : Turn the asterisk-type provider URLs into regexs.
 	 *
 	 * ## AVAILABLE FIELDS
 	 *
@@ -47,11 +47,9 @@ class Provider_Command extends WP_CLI_Command {
 	 * * format
 	 * * endpoint
 	 *
-	 * These fields are optionally available:
+	 * This field is optionally available:
 	 *
-	 * * name
-	 * * https
-	 * * since
+	 * * regex
 	 *
 	 * ## EXAMPLES
 	 *
@@ -86,6 +84,7 @@ class Provider_Command extends WP_CLI_Command {
 			$providers[] = array(
 				'format'   => $matchmask,
 				'endpoint' => $providerurl,
+				'regex' => $regex ? '1' : '0',
 			);
 		}
 
@@ -101,19 +100,15 @@ class Provider_Command extends WP_CLI_Command {
 	 * <url>
 	 * : URL to retrieve provider for.
 	 *
-	 * [--verbose]
-	 * : Show debug information.
-	 *
 	 * [--discover]
 	 * : Whether to use oEmbed discovery or not. Defaults to true.
 	 *
 	 * [--limit-response-size=<size>]
-	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB.
+	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB (the standard WordPress limit). Not compatible with 'no-discover'.
 	 *
-	 * [--format=<format>]
-	 * : Which data format to prefer.
+	 * [--link-type=<json|xml>]
+	 * : Whether to accept only a certain link type when using discovery. Defaults to any (json or xml), preferring json. Not compatible with 'no-discover'.
 	 * ---
-	 * default: json
 	 * options:
 	 *   - json
 	 *   - xml
@@ -121,8 +116,9 @@ class Provider_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # List format,endpoint fields of available providers.
-	 *     $ wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
+	 *     # Get the matching provider for the URL.
+	 *     $ wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ
+	 *     https://www.youtube.com/oembed
 	 *
 	 * @subcommand match
 	 */
@@ -132,9 +128,24 @@ class Provider_Command extends WP_CLI_Command {
 		$url                 = $args[0];
 		$discover            = \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
 		$response_size_limit = \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit-response-size' );
-		$format              = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format' );
+		$link_type           = \WP_CLI\Utils\get_flag_value( $assoc_args, 'link-type' );
+
+		if ( ! $discover && ( null !== $response_size_limit || null !== $link_type ) ) {
+			if ( null !== $response_size_limit && null !== $link_type ) {
+				$msg = "The 'limit-response-size' and 'link-type' options can only be used with discovery.";
+			} elseif ( null !== $response_size_limit ) {
+				$msg = "The 'limit-response-size' option can only be used with discovery.";
+			} else {
+				$msg = "The 'link-type' option can only be used with discovery.";
+			}
+			WP_CLI::error( $msg );
+		}
 
 		if ( $response_size_limit ) {
+			if ( Utils\wp_version_compare( '4.0', '<' ) ) {
+				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
+				// Fall through anyway...
+			}
 			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
 				$args['limit_response_size'] = $response_size_limit;
 
@@ -142,10 +153,11 @@ class Provider_Command extends WP_CLI_Command {
 			} );
 		}
 
-		if ( $format ) {
-			add_filter( 'oembed_linktypes', function ( $linktypes ) use ( $format ) {
+		if ( $link_type ) {
+			// Filter discovery response.
+			add_filter( 'oembed_linktypes', function ( $linktypes ) use ( $link_type ) {
 				foreach ( $linktypes as $mime_type => $linktype_format ) {
-					if ( $format !== $linktype_format ) {
+					if ( $link_type !== $linktype_format ) {
 						unset( $linktypes[ $mime_type ] );
 					}
 				}
@@ -162,9 +174,9 @@ class Provider_Command extends WP_CLI_Command {
 
 		if ( ! $provider ) {
 			if ( ! $discover ) {
-				WP_CLI::error( 'No oEmbed provider found for given URL.' );
-			} else {
 				WP_CLI::error( 'No oEmbed provider found for given URL. Maybe try discovery?' );
+			} else {
+				WP_CLI::error( 'No oEmbed provider found for given URL.' );
 			}
 		}
 
@@ -178,6 +190,6 @@ class Provider_Command extends WP_CLI_Command {
 	 * @return \WP_CLI\Formatter
 	 */
 	protected function get_formatter( &$assoc_args ) {
-		return new Formatter( $assoc_args, $this->possible_fields );
+		return new Formatter( $assoc_args, $this->default_fields );
 	}
 }
