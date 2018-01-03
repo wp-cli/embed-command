@@ -38,7 +38,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * ---
 	 *
 	 * [--force-regex]
-	 * : Turn the asterisk-type provider URLs into regexs.
+	 * : Turn the asterisk-type provider URLs into regexes.
 	 *
 	 * ## AVAILABLE FIELDS
 	 *
