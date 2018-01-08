@@ -58,7 +58,7 @@ class Cache_Command extends WP_CLI_Command {
 	 * Starting with WordPress 4.9, embeds that aren't associated with a specific post will be cached in
 	 * a new oembed_cache post type. There can be more than one such entry for a url depending on attributes and context.
 	 *
-	 * Not to be confused to oEmbed caches for a given post which are stored in the post's metadata.
+	 * Not to be confused with oEmbed caches for a given post which are stored in the post's metadata.
 	 *
 	 * ## OPTIONS
 	 *
