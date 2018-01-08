@@ -169,7 +169,7 @@ Feature: Manage oEmbed providers.
       json
       """
 
-  # Depends on `oembed_remote_get_args` filter introduced WP 4.0 https://core.trac.wordpress.org/ticket/23442
+  # Depends on `oembed_remote_get_args` filter introduced in WP 4.0 https://core.trac.wordpress.org/ticket/23442
   @require-wp-4.0
   Scenario: Discover a provider with limited response size
     When I run `wp embed provider match https://asciinema.org/a/140798`
