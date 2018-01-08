@@ -10,11 +10,9 @@ use WP_CLI_Command;
  * Retrieves embed handlers.
  */
 class Handler_Command extends WP_CLI_Command {
-	protected $possible_fields = array(
+	protected $default_fields = array(
 		'id',
 		'regex',
-		'callback',
-		'priority',
 	);
 
 	/**
@@ -73,10 +71,10 @@ class Handler_Command extends WP_CLI_Command {
 		foreach ( $wp_embed->handlers as $priority => $handlers ) {
 			foreach ( $handlers as $id => $handler ) {
 				$all_handlers[] = array(
-					'priority' => $priority,
 					'id' => $id,
 					'regex' => $handler['regex'],
 					'callback' => $handler['callback'],
+					'priority' => $priority,
 				);
 			}
 		}
@@ -92,6 +90,6 @@ class Handler_Command extends WP_CLI_Command {
 	 * @return \WP_CLI\Formatter
 	 */
 	protected function get_formatter( &$assoc_args ) {
-		return new Formatter( $assoc_args, $this->possible_fields );
+		return new Formatter( $assoc_args, $this->default_fields );
 	}
 }
