@@ -16,6 +16,8 @@ class Cache_Command extends WP_CLI_Command {
 	/**
 	 * Deletes all oEmbed caches for a given post.
 	 *
+	 * oEmbed caches for a post are stored in the post's metadata.
+	 *
 	 * ## OPTIONS
 	 *
 	 * <post_id>
@@ -25,6 +27,7 @@ class Cache_Command extends WP_CLI_Command {
 	 *
 	 *     # Clear cache for a post
 	 *     $ wp embed cache clear 123
+	 *     Success: Cleared oEmbed cache.
 	 */
 	public function clear( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
@@ -33,6 +36,12 @@ class Cache_Command extends WP_CLI_Command {
 		$post_id = $args[0];
 
 		$post_metas = get_post_custom_keys( $post_id );
+
+		if ( $post_metas ) {
+			$post_metas = array_filter( $post_metas, function ( $v ) {
+				return '_oembed_' === substr( $v, 0, 8 );
+			} );
+		}
 
 		if ( empty( $post_metas ) ) {
 			WP_CLI::error( 'No cache to clear!' );
@@ -44,10 +53,12 @@ class Cache_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Finds the oEmbed cache post ID for a given URL.
+	 * Finds an oEmbed cache post ID for a given URL.
 	 *
 	 * Starting with WordPress 4.9, embeds that aren't associated with a specific post will be cached in
-	 * a new oembed_cache post type.
+	 * a new oembed_cache post type. There can be more than one such entry for a url depending on attributes and context.
+	 *
+	 * Not to be confused with oEmbed caches for a given post which are stored in the post's metadata.
 	 *
 	 * ## OPTIONS
 	 *
@@ -55,15 +66,19 @@ class Cache_Command extends WP_CLI_Command {
 	 * : URL to retrieve oEmbed data for.
 	 *
 	 * [--width=<width>]
-	 * : Width of the embed in pixels.
+	 * : Width of the embed in pixels. Part of cache key so must match. Defaults to `content_width` if set else 500px, so is theme and context dependent.
 	 *
 	 * [--height=<height>]
-	 * : Height of the embed in pixels.
+	 * : Height of the embed in pixels. Part of cache key so must match. Defaults to 1.5 * default width (`content_width` or 500px), to a maximum of 1000px.
+	 *
+	 * [--discover]
+	 * : Whether to search with the discover attribute set or not. Part of cache key so must match. If not given, will search with attribute: unset, '1', '0', returning first.
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Find cache post ID for a given URL.
 	 *     $ wp embed cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
+	 *     123
 	 */
 	public function find( $args, $assoc_args ) {
 		if ( Utils\wp_version_compare( '4.9', '<' ) ) {
@@ -75,37 +90,51 @@ class Cache_Command extends WP_CLI_Command {
 
 		$url = $args[0];
 
-		$oembed_args = array(
-			'width'    => (int) Utils\get_flag_value( $assoc_args, 'width' ),
-			'height'   => (int) Utils\get_flag_value( $assoc_args, 'height' ),
-		);
+		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
+		$oembed_args = array();
+		if ( null !== ( $width = Utils\get_flag_value( $assoc_args, 'width' ) ) ) {
+			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
+		}
+		if ( null !== ( $height = Utils\get_flag_value( $assoc_args, 'height' ) ) ) {
+			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
+		}
+		$discovers = null !== ( $discover = Utils\get_flag_value( $assoc_args, 'discover' ) ) ? array( $discover ? '1' : '0' ) : array( null, '1', '0' );
 
-		$attr       = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
-		$key_suffix = md5( $url . serialize( $attr ) );
+		$attr = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
 
-		$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
+		foreach ( $discovers as $discover ) {
+			if ( null !== $discover ) {
+				$attr['discover'] = $discover;
+			}
+			$key_suffix = md5( $url . serialize( $attr ) );
 
-		if ( $cached_post_id ) {
-			WP_CLI::line( $cached_post_id );
+			$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
 
-			return;
+			if ( $cached_post_id ) {
+				WP_CLI::line( $cached_post_id );
+
+				return;
+			}
 		}
 
 		WP_CLI::error( 'No cache post ID found!' );
 	}
 
 	/**
-	 * Triggers a caching of all oEmbed results for a given post.
+	 * Triggers the caching of all oEmbed results for a given post.
+	 *
+	 * oEmbed caches for a post are stored in the post's metadata.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <post_id>
-	 * : ID of the post to do th caching for.
+	 * : ID of the post to do the caching for.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Clear cache for a post
+	 *     # Triggers cache for a post
 	 *     $ wp embed cache trigger 456
+	 *     Success: Caching triggered!
 	 */
 	public function trigger( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
@@ -116,14 +145,14 @@ class Cache_Command extends WP_CLI_Command {
 		$post_types = get_post_types( array( 'show_ui' => true ) );
 
 		if ( empty( $post->ID ) ) {
-			WP_CLI::warning( sprintf( 'Post %d does not exist!', $post_id ) );
+			WP_CLI::warning( sprintf( "Post id '%s' not found.", $post_id ) );
 
 			return;
 		}
 
 		/** This filter is documented in wp-includes/class-wp-embed.php */
 		if ( ! in_array( $post->post_type, apply_filters( 'embed_cache_oembed_types', $post_types ), true ) ) {
-			WP_CLI::warning( sprintf( 'Cannot cache oEmbed results for %s post type', $post->post_type ) );
+			WP_CLI::warning( sprintf( "Cannot cache oEmbed results for '%s' post type", $post->post_type ) );
 
 			return;
 		}
