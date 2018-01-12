@@ -186,13 +186,13 @@ Feature: Manage oEmbed cache.
 
   # WP prior to 4.9 does not return clickable link.
   @less-than-wp-4.9
-  Scenario: Makes unknown URLs clickable
+  Scenario: Doesn't make unknown URLs clickable
     When I try `wp embed fetch https://foo.example.com`
     Then the return code should be 1
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "contain" to cater for these.
-    And STDERR should not contain:
+    And STDERR should contain:
       """
-      Error: No oEmbed provider found for given URL. Maybe try discovery?
+      Error: There was an error fetching the oEmbed data.
       """
     And STDOUT should be empty
 
