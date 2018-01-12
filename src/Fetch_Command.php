@@ -29,17 +29,23 @@ class Fetch_Command extends WP_CLI_Command {
 	 * [--post-id=<id>]
 	 * : Cache oEmbed response for a given post.
 	 *
+	 * [--discover]
+	 * : Enable oEmbed discovery. Defaults to true.
+	 *
 	 * [--skip-cache]
 	 * : Ignore already cached oEmbed responses. Has no effect if using the 'raw' option, which doesn't use the cache.
 	 *
-	 * [--discover]
-	 * : Enable oEmbed discovery. Defaults to true.
+	 * [--skip-sanitation]
+	 * : Remove the filter that WordPress from 4.4 onwards uses to sanitize oEmbed responses. Has no effect if using the 'raw' option, which by-passes sanitation.
+	 *
+	 * [--do-shortcode]
+	 * : If the URL is handled by a registered embed handler and returns a shortcode, do shortcode and return result. Has no effect if using the 'raw' option, which by-passes handlers.
 	 *
 	 * [--limit-response-size=<size>]
 	 * : Limit the size of the resulting HTML when using discovery. Default 150 KB (the standard WordPress limit). Not compatible with 'no-discover'.
 	 *
 	 * [--raw]
-	 * : Return the raw oEmbed response instead of the resulting HTML. Ignores the cache.
+	 * : Return the raw oEmbed response instead of the resulting HTML. Ignores the cache and does not sanitize responses or use registered embed handlers.
 	 *
 	 * [--raw-format=<json|xml>]
 	 * : Render raw oEmbed data in a particular format. Defaults to json. Can only be specified in conjunction with the 'raw' option.
@@ -57,7 +63,7 @@ class Fetch_Command extends WP_CLI_Command {
 	 *
 	 *     # Get raw oEmbed data for a given URL.
 	 *     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw
-	 *     {"type":"video","thumbnail_width":480,"height":295,"author_name":"RickAstleyVEVO","html":"<iframe width=\"525\" ...
+	 *     {"author_url":"https:\/\/www.youtube.com\/user\/RickAstleyVEVO","width":525,"version":"1.0", ...
 	 */
 	public function __invoke( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
@@ -82,7 +88,7 @@ class Fetch_Command extends WP_CLI_Command {
 			$oembed_args['discover'] = $discover ? '1' : '0'; // Make it a string as if from a shortcode attribute.
 		}
 
-		$discover = null === $discover ? true : (bool) $discover;
+		$discover = null === $discover ? true : (bool) $discover; // Will use to set `$oembed_args['discover']` when not calling `WP_Embed::shortcode()`.
 
 		if ( ! $discover && null !== $response_size_limit ) {
 			WP_CLI::error( "The 'limit-response-size' option can only be used with discovery." );
@@ -106,20 +112,19 @@ class Fetch_Command extends WP_CLI_Command {
 
 		// If raw, query providers directly, by-passing cache.
 		if ( $raw ) {
+			$oembed = new oEmbed; // Needs to be here to make sure `_wp_oembed_get_object()` defined (in "wp-includes/class-oembed.php" for WP < 4.7).
 
-			$oembed = new oEmbed;
+			$oembed_args['discover'] = $discover;
 
-			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
-
-			// Before applying 'pre_oembed_result', make `WP_oEmbed::data2html()` a no-op so get raw data.
+			// Make 'oembed_dataparse' filter a no-op so get raw unsanitized data.
 			add_filter( 'oembed_dataparse', function ( $return, $data, $url ) {
 				return $data;
-			}, 9999, 3 ); // Need large priority to avoid `_strip_newlines` filter added in `WP_oEmbed::__construct()`.
+			}, 9999, 3 ); // Large priority to by-pass other 'oembed_dataparse' filters.
 
+			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
 			$data = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
 
 			if ( null === $data ) {
-
 				$provider = $oembed->get_provider( $url, $oembed_args );
 
 				if ( ! $provider ) {
@@ -156,8 +161,11 @@ class Fetch_Command extends WP_CLI_Command {
 			}
 		}
 
-		$skip_cache = Utils\get_flag_value( $assoc_args, 'skip-cache' );
-		if ( $skip_cache ) {
+		if ( Utils\get_flag_value( $assoc_args, 'skip-sanitation' ) ) {
+			remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10, 3 );
+		}
+
+		if ( Utils\get_flag_value( $assoc_args, 'skip-cache' ) ) {
 			$wp_embed->usecache = false;
 			// In order to skip caching, also need `$cached_recently` to be false in `WP_Embed::shortcode()`, so set TTL to zero.
 			add_filter( 'oembed_ttl', '__return_zero' );
@@ -165,13 +173,13 @@ class Fetch_Command extends WP_CLI_Command {
 			$wp_embed->usecache = true;
 		}
 
-		if ( ! $discover ) {
-			// `WP_Embed::shortcode()` sets the 'discover' attribute based on this filter, no matter what's passed to it, so set to false.
-			add_filter( 'embed_oembed_discover', '__return_false' );
-		}
+		// `WP_Embed::shortcode()` sets the 'discover' attribute based on 'embed_oembed_discover' filter, no matter what's passed to it.
+		add_filter( 'embed_oembed_discover', $discover ? '__return_true' : '__return_false' );
 
-		// For WP < 4.9, `WP_Embed::shortcode()` won't check providers if no post_id supplied, so set maybe_make_link to return false so can check and do it ourselves.
-		if ( $check_providers = ( Utils\wp_version_compare( '4.9', '<' ) && ! $post_id ) ) {
+		// For WP < 4.9, `WP_Embed::shortcode()` won't check providers if no post_id supplied, so set `maybe_make_link()` to return false so can check and do it ourselves.
+		// Also set if WP < 4.4 and don't have 'unfiltered_html' privileges on post.
+		$check_providers = Utils\wp_version_compare( '4.9', '<' ) && ( ! $post_id || ( Utils\wp_version_compare( '4.4', '<' ) && ! author_can( $post_id, 'unfiltered_html' ) ) );
+		if ( $check_providers ) {
 			add_filter( 'embed_maybe_make_link', '__return_false' );
 		}
 
@@ -180,13 +188,17 @@ class Fetch_Command extends WP_CLI_Command {
 		if ( false === $html && $check_providers ) {
 
 			// Check providers.
+			$oembed_args['discover'] = $discover;
 			$html = wp_oembed_get( $url, $oembed_args );
 
-			if ( ! $html ) {
-				// Return a clickable link for compatibility with WP 4.9 behaviour.
-				remove_filter( 'embed_maybe_make_link', '__return_false' );
-				$html = $wp_embed->maybe_make_link( $url );
+			// `wp_oembed_get()` returns zero-length string instead of false on failure due to `_strip_newlines()` 'oembed_dataparse' filter so make sure false.
+			if ( '' === $html ) {
+				$html = false;
 			}
+		}
+
+		if ( false !== $html && '[' === substr( $html, 0, 1 ) && Utils\get_flag_value( $assoc_args, 'do-shortcode' ) ) {
+			$html = do_shortcode( $html, true );
 		}
 
 		if ( false === $html ) {
