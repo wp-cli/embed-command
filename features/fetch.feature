@@ -52,9 +52,9 @@ Feature: Manage oEmbed cache.
       <iframe
      """
 
-    # Unknown provider requiring discovery but not returning iframe so would be sanitized for WP >= 4.4 without 'skip-sanitation' option.
+    # Unknown provider requiring discovery but not returning iframe so would be sanitized for WP >= 4.4 without 'skip-sanitization' option.
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed fetch https://asciinema.org/a/140798 --skip-sanitation`
+    When I try `wp embed fetch https://asciinema.org/a/140798 --skip-sanitization`
     Then the return code should be 0
     And STDERR should not contain:
       """
@@ -97,7 +97,7 @@ Feature: Manage oEmbed cache.
       """
     And STDOUT should be empty
 
-  # No sanitation prior to WP 4.4.
+  # No sanitization prior to WP 4.4.
   @less-than-wp-4.4
   Scenario: Get HTML embed code for a given URL that requires discovery and is sanitized
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
