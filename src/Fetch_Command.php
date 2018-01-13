@@ -107,7 +107,7 @@ class Fetch_Command extends WP_CLI_Command {
 				$args['limit_response_size'] = $response_size_limit;
 
 				return $args;
-			} );
+			}, PHP_INT_MAX );
 		}
 
 		// If raw, query providers directly, by-passing cache.
@@ -119,7 +119,7 @@ class Fetch_Command extends WP_CLI_Command {
 			// Make 'oembed_dataparse' filter a no-op so get raw unsanitized data.
 			add_filter( 'oembed_dataparse', function ( $return, $data, $url ) {
 				return $data;
-			}, 9999, 3 ); // Large priority to by-pass other 'oembed_dataparse' filters.
+			}, PHP_INT_MAX, 3 );
 
 			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
 			$data = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
@@ -168,19 +168,19 @@ class Fetch_Command extends WP_CLI_Command {
 		if ( Utils\get_flag_value( $assoc_args, 'skip-cache' ) ) {
 			$wp_embed->usecache = false;
 			// In order to skip caching, also need `$cached_recently` to be false in `WP_Embed::shortcode()`, so set TTL to zero.
-			add_filter( 'oembed_ttl', '__return_zero' );
+			add_filter( 'oembed_ttl', '__return_zero', PHP_INT_MAX );
 		} else {
 			$wp_embed->usecache = true;
 		}
 
 		// `WP_Embed::shortcode()` sets the 'discover' attribute based on 'embed_oembed_discover' filter, no matter what's passed to it.
-		add_filter( 'embed_oembed_discover', $discover ? '__return_true' : '__return_false' );
+		add_filter( 'embed_oembed_discover', $discover ? '__return_true' : '__return_false', PHP_INT_MAX );
 
 		// For WP < 4.9, `WP_Embed::shortcode()` won't check providers if no post_id supplied, so set `maybe_make_link()` to return false so can check and do it ourselves.
 		// Also set if WP < 4.4 and don't have 'unfiltered_html' privileges on post.
 		$check_providers = Utils\wp_version_compare( '4.9', '<' ) && ( ! $post_id || ( Utils\wp_version_compare( '4.4', '<' ) && ! author_can( $post_id, 'unfiltered_html' ) ) );
 		if ( $check_providers ) {
-			add_filter( 'embed_maybe_make_link', '__return_false' );
+			add_filter( 'embed_maybe_make_link', '__return_false', PHP_INT_MAX );
 		}
 
 		$html = $wp_embed->shortcode( $oembed_args, $url );
