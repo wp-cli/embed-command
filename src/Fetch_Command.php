@@ -35,8 +35,8 @@ class Fetch_Command extends WP_CLI_Command {
 	 * [--skip-cache]
 	 * : Ignore already cached oEmbed responses. Has no effect if using the 'raw' option, which doesn't use the cache.
 	 *
-	 * [--skip-sanitation]
-	 * : Remove the filter that WordPress from 4.4 onwards uses to sanitize oEmbed responses. Has no effect if using the 'raw' option, which by-passes sanitation.
+	 * [--skip-sanitization]
+	 * : Remove the filter that WordPress from 4.4 onwards uses to sanitize oEmbed responses. Has no effect if using the 'raw' option, which by-passes sanitization.
 	 *
 	 * [--do-shortcode]
 	 * : If the URL is handled by a registered embed handler and returns a shortcode, do shortcode and return result. Has no effect if using the 'raw' option, which by-passes handlers.
@@ -161,7 +161,7 @@ class Fetch_Command extends WP_CLI_Command {
 			}
 		}
 
-		if ( Utils\get_flag_value( $assoc_args, 'skip-sanitation' ) ) {
+		if ( Utils\get_flag_value( $assoc_args, 'skip-sanitization' ) ) {
 			remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10, 3 );
 		}
 
