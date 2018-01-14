@@ -117,6 +117,7 @@ class Fetch_Command extends WP_CLI_Command {
 			$oembed_args['discover'] = $discover;
 
 			// Make 'oembed_dataparse' filter a no-op so get raw unsanitized data.
+			remove_all_filters( 'oembed_dataparse' ); // Save a few cycles.
 			add_filter( 'oembed_dataparse', function ( $return, $data, $url ) {
 				return $data;
 			}, PHP_INT_MAX, 3 );
