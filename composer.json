@@ -3,28 +3,36 @@
     "description": "Inspects oEmbed providers, clears embed cache, and more.",
     "type": "wp-cli-package",
     "homepage": "https://github.com/wp-cli/embed-command",
+    "support": {
+        "issues": "https://github.com/wp-cli/embed-command/issues"
+    },
     "license": "MIT",
-    "authors": [],
+    "authors": [
+        {
+            "name": "Pascal Birchler",
+            "homepage": "https://pascalbirchler.com/"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
-        "files": [
-            "embed-command.php"
-        ],
         "psr-4": {
             "WP_CLI\\Embeds\\": "src/"
-        }
+        },
+        "files": [
+            "embed-command.php"
+        ]
     },
-    "require": {
-        "wp-cli/wp-cli": "^1.1.0"
-    },
+    "require": {},
     "require-dev": {
-        "behat/behat": "~2.5"
+        "behat/behat": "~2.5",
+        "wp-cli/wp-cli": "^1.5"
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.x-dev"
         },
+        "bundled": true,
         "commands": [
             "embed",
             "embed fetch",
@@ -34,7 +42,6 @@
             "embed cache clear",
             "embed cache find",
             "embed cache trigger"
-        ],
-        "bundled": true
+        ]
     }
 }
