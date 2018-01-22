@@ -28,11 +28,13 @@ wp embed
 Attempts to convert a URL into embed HTML.
 
 ~~~
-wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--skip-cache] [--raw] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed fetch <url> [--width=<width>] [--height=<height>] [--post-id=<id>] [--discover] [--skip-cache] [--skip-sanitization] [--do-shortcode] [--limit-response-size=<size>] [--raw] [--raw-format=<json|xml>]
 ~~~
 
-Starts by checking the URL against the regex of the registered embed handlers.
+In non-raw mode, starts by checking the URL against the regex of the registered embed handlers.
 If none of the regex matches and it's enabled, then the URL will be given to the WP_oEmbed class.
+
+In raw mode, checks the providers directly and returns the data.
 
 **OPTIONS**
 
@@ -48,21 +50,26 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 	[--post-id=<id>]
 		Cache oEmbed response for a given post.
 
-	[--skip-cache]
-		Ignore already cached oEmbed responses.
-
-	[--raw]
-		Return the raw oEmbed response instead of the resulting HTML. Only
-		possible when there's no internal handler for the given URL.
-
 	[--discover]
 		Enable oEmbed discovery. Defaults to true.
 
-	[--limit-response-size=<size>]
-		Limit the size of the resulting HTML when using discovery. Default 150 KB.
+	[--skip-cache]
+		Ignore already cached oEmbed responses. Has no effect if using the 'raw' option, which doesn't use the cache.
 
-	[--format=<format>]
-		Which data format to prefer when requesting oEmbed data.
+	[--skip-sanitization]
+		Remove the filter that WordPress from 4.4 onwards uses to sanitize oEmbed responses. Has no effect if using the 'raw' option, which by-passes sanitization.
+
+	[--do-shortcode]
+		If the URL is handled by a registered embed handler and returns a shortcode, do shortcode and return result. Has no effect if using the 'raw' option, which by-passes handlers.
+
+	[--limit-response-size=<size>]
+		Limit the size of the resulting HTML when using discovery. Default 150 KB (the standard WordPress limit). Not compatible with 'no-discover'.
+
+	[--raw]
+		Return the raw oEmbed response instead of the resulting HTML. Ignores the cache and does not sanitize responses or use registered embed handlers.
+
+	[--raw-format=<json|xml>]
+		Render raw oEmbed data in a particular format. Defaults to json. Can only be specified in conjunction with the 'raw' option.
 		---
 		options:
 		  - json
@@ -73,9 +80,11 @@ If none of the regex matches and it's enabled, then the URL will be given to the
 
     # Get embed HTML for a given URL.
     $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    <iframe width="525" height="295" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" ...
 
     # Get raw oEmbed data for a given URL.
-    $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw --skip-cache
+    $ wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw
+    {"author_url":"https:\/\/www.youtube.com\/user\/RickAstleyVEVO","width":525,"version":"1.0", ...
 
 
 
@@ -106,7 +115,7 @@ wp embed provider list [--field=<field>] [--fields=<fields>] [--format=<format>]
 		---
 
 	[--force-regex]
-		Turn the asterisk-type provider URLs into regex
+		Turn the asterisk-type provider URLs into regexes.
 
 **AVAILABLE FIELDS**
 
@@ -115,11 +124,9 @@ These fields will be displayed by default for each provider:
 * format
 * endpoint
 
-These fields are optionally available:
+This field is optionally available:
 
-* name
-* https
-* since
+* regex
 
 **EXAMPLES**
 
@@ -139,7 +146,7 @@ These fields are optionally available:
 Gets the matching provider for a given URL.
 
 ~~~
-wp embed provider match <url> [--verbose] [--discover] [--limit-response-size=<size>] [--format=<format>]
+wp embed provider match <url> [--discover] [--limit-response-size=<size>] [--link-type=<json|xml>]
 ~~~
 
 **OPTIONS**
@@ -147,19 +154,15 @@ wp embed provider match <url> [--verbose] [--discover] [--limit-response-size=<s
 	<url>
 		URL to retrieve provider for.
 
-	[--verbose]
-		Show debug information.
-
 	[--discover]
 		Whether to use oEmbed discovery or not. Defaults to true.
 
 	[--limit-response-size=<size>]
-		Limit the size of the resulting HTML when using discovery. Default 150 KB.
+		Limit the size of the resulting HTML when using discovery. Default 150 KB (the standard WordPress limit). Not compatible with 'no-discover'.
 
-	[--format=<format>]
-		Which data format to prefer.
+	[--link-type=<json|xml>]
+		Whether to accept only a certain link type when using discovery. Defaults to any (json or xml), preferring json. Not compatible with 'no-discover'.
 		---
-		default: json
 		options:
 		  - json
 		  - xml
@@ -167,8 +170,9 @@ wp embed provider match <url> [--verbose] [--discover] [--limit-response-size=<s
 
 **EXAMPLES**
 
-    # List format,endpoint fields of available providers.
-    $ wp embed provider get https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    # Get the matching provider for the URL.
+    $ wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    https://www.youtube.com/oembed
 
 
 
@@ -231,6 +235,8 @@ Deletes all oEmbed caches for a given post.
 wp embed cache clear <post_id>
 ~~~
 
+oEmbed caches for a post are stored in the post's metadata.
+
 **OPTIONS**
 
 	<post_id>
@@ -240,19 +246,22 @@ wp embed cache clear <post_id>
 
     # Clear cache for a post
     $ wp embed cache clear 123
+    Success: Cleared oEmbed cache.
 
 
 
 ### wp embed cache find
 
-Finds the oEmbed cache post ID for a given URL.
+Finds an oEmbed cache post ID for a given URL.
 
 ~~~
-wp embed cache find <url> [--width=<width>] [--height=<height>]
+wp embed cache find <url> [--width=<width>] [--height=<height>] [--discover]
 ~~~
 
 Starting with WordPress 4.9, embeds that aren't associated with a specific post will be cached in
-a new oembed_cache post type.
+a new oembed_cache post type. There can be more than one such entry for a url depending on attributes and context.
+
+Not to be confused with oEmbed caches for a given post which are stored in the post's metadata.
 
 **OPTIONS**
 
@@ -260,35 +269,42 @@ a new oembed_cache post type.
 		URL to retrieve oEmbed data for.
 
 	[--width=<width>]
-		Width of the embed in pixels.
+		Width of the embed in pixels. Part of cache key so must match. Defaults to `content_width` if set else 500px, so is theme and context dependent.
 
 	[--height=<height>]
-		Height of the embed in pixels.
+		Height of the embed in pixels. Part of cache key so must match. Defaults to 1.5 * default width (`content_width` or 500px), to a maximum of 1000px.
+
+	[--discover]
+		Whether to search with the discover attribute set or not. Part of cache key so must match. If not given, will search with attribute: unset, '1', '0', returning first.
 
 **EXAMPLES**
 
     # Find cache post ID for a given URL.
     $ wp embed cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
+    123
 
 
 
 ### wp embed cache trigger
 
-Triggers a caching of all oEmbed results for a given post.
+Triggers the caching of all oEmbed results for a given post.
 
 ~~~
 wp embed cache trigger <post_id>
 ~~~
 
+oEmbed caches for a post are stored in the post's metadata.
+
 **OPTIONS**
 
 	<post_id>
-		ID of the post to do th caching for.
+		ID of the post to do the caching for.
 
 **EXAMPLES**
 
-    # Clear cache for a post
+    # Triggers cache for a post
     $ wp embed cache trigger 456
+    Success: Caching triggered!
 
 ## Installing
 
