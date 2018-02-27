@@ -36,9 +36,12 @@
         "commands": [
             "embed",
             "embed fetch",
+            "embed provider",
             "embed provider list",
             "embed provider match",
+            "embed handler",
             "embed handler list",
+            "embed cache",
             "embed cache clear",
             "embed cache find",
             "embed cache trigger"

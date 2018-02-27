@@ -88,6 +88,18 @@ In raw mode, checks the providers directly and returns the data.
 
 
 
+### wp embed provider
+
+Retrieves oEmbed providers.
+
+~~~
+wp embed provider
+~~~
+
+
+
+
+
 ### wp embed provider list
 
 Lists all available oEmbed providers.
@@ -176,6 +188,18 @@ wp embed provider match <url> [--discover] [--limit-response-size=<size>] [--lin
 
 
 
+### wp embed handler
+
+Retrieves embed handlers.
+
+~~~
+wp embed handler
+~~~
+
+
+
+
+
 ### wp embed handler list
 
 Lists all available embed handlers.
@@ -224,6 +248,18 @@ These fields are optionally available:
     | 10       | youtube_embed_url |
     | 9999     | audio             |
     | 9999     | video             |
+
+
+
+### wp embed cache
+
+Finds, triggers, and deletes oEmbed caches.
+
+~~~
+wp embed cache
+~~~
+
+
 
 
 
