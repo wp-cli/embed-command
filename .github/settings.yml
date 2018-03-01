@@ -20,13 +20,21 @@ labels:
     color: bfe5bf
   - name: wontfix
     color: c2e0c6
+  - name: command:embed
+    color: c5def5
   - name: command:embed-fetch
+    color: c5def5
+  - name: command:embed-provider
     color: c5def5
   - name: command:embed-provider-list
     color: c5def5
-  - name: command:embed-provider-get
+  - name: command:embed-provider-match
+    color: c5def5
+  - name: command:embed-handler
     color: c5def5
   - name: command:embed-handler-list
+    color: c5def5
+  - name: command:embed-cache
     color: c5def5
   - name: command:embed-cache-clear
     color: c5def5
