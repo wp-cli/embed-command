@@ -91,17 +91,21 @@ class Cache_Command extends WP_CLI_Command {
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
-		$url = $args[0];
+		$url      = $args[0];
+		$width    = Utils\get_flag_value( $assoc_args, 'width' );
+		$height   = Utils\get_flag_value( $assoc_args, 'height' );
+		$discover = Utils\get_flag_value( $assoc_args, 'discover' );
 
 		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
 		$oembed_args = array();
-		if ( null !== ( $width = Utils\get_flag_value( $assoc_args, 'width' ) ) ) {
+
+		if ( null !== $width ) {
 			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
 		}
-		if ( null !== ( $height = Utils\get_flag_value( $assoc_args, 'height' ) ) ) {
+		if ( null !== $height ) {
 			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
 		}
-		$discovers = null !== ( $discover = Utils\get_flag_value( $assoc_args, 'discover' ) ) ? array( $discover ? '1' : '0' ) : array( null, '1', '0' );
+		$discovers = null !== $discover ? array( $discover ? '1' : '0' ) : array( null, '1', '0' );
 
 		$attr = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
 

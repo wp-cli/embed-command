@@ -75,13 +75,16 @@ class Fetch_Command extends WP_CLI_Command {
 		$post_id             = Utils\get_flag_value( $assoc_args, 'post-id' );
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover' );
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
+		$width               = Utils\get_flag_value( $assoc_args, 'width' );
+		$height              = Utils\get_flag_value( $assoc_args, 'height' );
 
 		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
 		$oembed_args = array();
-		if ( null !== ( $width = Utils\get_flag_value( $assoc_args, 'width' ) ) ) {
+
+		if ( null !== $width ) {
 			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
 		}
-		if ( null !== ( $height = Utils\get_flag_value( $assoc_args, 'height' ) ) ) {
+		if ( null !== $height ) {
 			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
 		}
 		if ( null !== $discover ) {
