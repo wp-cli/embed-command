@@ -116,7 +116,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 		// If raw, query providers directly, by-passing cache.
 		if ( $raw ) {
-			$oembed = new oEmbed; // Needs to be here to make sure `_wp_oembed_get_object()` defined (in "wp-includes/class-oembed.php" for WP < 4.7).
+			$oembed = new oEmbed(); // Needs to be here to make sure `_wp_oembed_get_object()` defined (in "wp-includes/class-oembed.php" for WP < 4.7).
 
 			$oembed_args['discover'] = $discover;
 
