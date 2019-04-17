@@ -103,11 +103,15 @@ class Fetch_Command extends WP_CLI_Command {
 				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
 				// Fall through anyway...
 			}
-			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
-				$args['limit_response_size'] = $response_size_limit;
+			add_filter(
+				'oembed_remote_get_args',
+				function ( $args ) use ( $response_size_limit ) {
+					$args['limit_response_size'] = $response_size_limit;
 
-				return $args;
-			}, PHP_INT_MAX );
+					return $args;
+				},
+				PHP_INT_MAX
+			);
 		}
 
 		// If raw, query providers directly, by-passing cache.
@@ -118,9 +122,14 @@ class Fetch_Command extends WP_CLI_Command {
 
 			// Make 'oembed_dataparse' filter a no-op so get raw unsanitized data.
 			remove_all_filters( 'oembed_dataparse' ); // Save a few cycles.
-			add_filter( 'oembed_dataparse', function ( $return, $data, $url ) {
-				return $data;
-			}, PHP_INT_MAX, 3 );
+			add_filter(
+				'oembed_dataparse',
+				function ( $return, $data, $url ) {
+					return $data;
+				},
+				PHP_INT_MAX,
+				3
+			);
 
 			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
 			$data = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );

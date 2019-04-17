@@ -146,24 +146,28 @@ class Provider_Command extends WP_CLI_Command {
 				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
 				// Fall through anyway...
 			}
-			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
-				$args['limit_response_size'] = $response_size_limit;
-
-				return $args;
-			} );
+			add_filter(
+				'oembed_remote_get_args',
+				function ( $args ) use ( $response_size_limit ) {
+					$args['limit_response_size'] = $response_size_limit;
+					return $args;
+				}
+			);
 		}
 
 		if ( $link_type ) {
 			// Filter discovery response.
-			add_filter( 'oembed_linktypes', function ( $linktypes ) use ( $link_type ) {
-				foreach ( $linktypes as $mime_type => $linktype_format ) {
-					if ( $link_type !== $linktype_format ) {
-						unset( $linktypes[ $mime_type ] );
+			add_filter(
+				'oembed_linktypes',
+				function ( $linktypes ) use ( $link_type ) {
+					foreach ( $linktypes as $mime_type => $linktype_format ) {
+						if ( $link_type !== $linktype_format ) {
+							unset( $linktypes[ $mime_type ] );
+						}
 					}
+					return $linktypes;
 				}
-
-				return $linktypes;
-			} );
+			);
 		}
 
 		$oembed_args = array(
