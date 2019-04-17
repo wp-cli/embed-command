@@ -38,9 +38,12 @@ class Cache_Command extends WP_CLI_Command {
 		$post_metas = get_post_custom_keys( $post_id );
 
 		if ( $post_metas ) {
-			$post_metas = array_filter( $post_metas, function ( $v ) {
-				return '_oembed_' === substr( $v, 0, 8 );
-			} );
+			$post_metas = array_filter(
+				$post_metas,
+				function ( $v ) {
+					return '_oembed_' === substr( $v, 0, 8 );
+				}
+			);
 		}
 
 		if ( empty( $post_metas ) ) {
