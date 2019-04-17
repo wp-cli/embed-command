@@ -72,7 +72,7 @@ class Provider_Command extends WP_CLI_Command {
 
 		$providers = array();
 
-		foreach (  (array) $oembed->providers as $matchmask => $data ) {
+		foreach ( (array) $oembed->providers as $matchmask => $data ) {
 			list( $providerurl, $regex ) = $data;
 
 			// Turn the asterisk-type provider URLs into regex
@@ -84,7 +84,7 @@ class Provider_Command extends WP_CLI_Command {
 			$providers[] = array(
 				'format'   => $matchmask,
 				'endpoint' => $providerurl,
-				'regex' => $regex ? '1' : '0',
+				'regex'    => $regex ? '1' : '0',
 			);
 		}
 

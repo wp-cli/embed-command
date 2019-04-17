@@ -71,8 +71,8 @@ class Handler_Command extends WP_CLI_Command {
 		foreach ( $wp_embed->handlers as $priority => $handlers ) {
 			foreach ( $handlers as $id => $handler ) {
 				$all_handlers[] = array(
-					'id' => $id,
-					'regex' => $handler['regex'],
+					'id'       => $id,
+					'regex'    => $handler['regex'],
 					'callback' => $handler['callback'],
 					'priority' => $priority,
 				);
