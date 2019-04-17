@@ -199,7 +199,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 			// Check providers.
 			$oembed_args['discover'] = $discover;
-			$html = wp_oembed_get( $url, $oembed_args );
+			$html                    = wp_oembed_get( $url, $oembed_args );
 
 			// `wp_oembed_get()` returns zero-length string instead of false on failure due to `_strip_newlines()` 'oembed_dataparse' filter so make sure false.
 			if ( '' === $html ) {
