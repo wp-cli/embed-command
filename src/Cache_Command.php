@@ -117,6 +117,7 @@ class Cache_Command extends WP_CLI_Command {
 			if ( null !== $discover ) {
 				$attr['discover'] = $discover;
 			}
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- needed to mimic WP Core behavior. See: \WP_Embed::shortcode.
 			$key_suffix = md5( $url . serialize( $attr ) );
 
 			$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
