@@ -8,10 +8,8 @@ if ( ! class_exists( '\WP_oEmbed' ) ) {
 
 /**
  * Polyfill for older WP versions.
- *
- * phpcs:disable PEAR.NamingConventions.ValidClassName.StartWithCapital -- this is purposefully using a lowercase letter for back compat reasons.
  */
-class oEmbed extends \WP_oEmbed {
+class OEmbed extends \WP_oEmbed {
 
 	/**
 	 * Takes a URL and returns the corresponding oEmbed provider's URL, if there is one.
