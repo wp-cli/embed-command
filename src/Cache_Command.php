@@ -105,7 +105,11 @@ class Cache_Command extends WP_CLI_Command {
 		if ( null !== $height ) {
 			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
 		}
-		$discovers = ( null !== $discover ) ? array( $discover ? '1' : '0' ) : array( null, '1', '0' );
+		if ( null !== $discover ) {
+			$discovers = array( ( $discover ) ? '1' : '0' );
+		} else {
+			$discovers = array( null, '1', '0' );
+		}
 
 		$attr = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
 
