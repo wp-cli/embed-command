@@ -169,7 +169,7 @@ class Fetch_Command extends WP_CLI_Command {
 		}
 
 		if ( $post_id ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the request is asking for a post id directly so need to override the global.
 			$GLOBALS['post'] = get_post( $post_id );
 			if ( null === $GLOBALS['post'] ) {
 				WP_CLI::warning( sprintf( "Post id '%s' not found.", $post_id ) );
