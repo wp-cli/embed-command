@@ -135,7 +135,7 @@ class Fetch_Command extends WP_CLI_Command {
 			);
 
 			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WP Core hook.
 			$data = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
 
 			if ( null === $data ) {
