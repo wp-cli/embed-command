@@ -158,7 +158,7 @@ class Cache_Command extends WP_CLI_Command {
 		}
 
 		/** This filter is documented in wp-includes/class-wp-embed.php */
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WP Core hook.
 		if ( ! in_array( $post->post_type, apply_filters( 'embed_cache_oembed_types', $post_types ), true ) ) {
 			WP_CLI::warning( sprintf( "Cannot cache oEmbed results for '%s' post type", $post->post_type ) );
 
