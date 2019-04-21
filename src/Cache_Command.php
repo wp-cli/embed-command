@@ -38,9 +38,12 @@ class Cache_Command extends WP_CLI_Command {
 		$post_metas = get_post_custom_keys( $post_id );
 
 		if ( $post_metas ) {
-			$post_metas = array_filter( $post_metas, function ( $v ) {
-				return '_oembed_' === substr( $v, 0, 8 );
-			} );
+			$post_metas = array_filter(
+				$post_metas,
+				function ( $v ) {
+					return '_oembed_' === substr( $v, 0, 8 );
+				}
+			);
 		}
 
 		if ( empty( $post_metas ) ) {
@@ -88,17 +91,25 @@ class Cache_Command extends WP_CLI_Command {
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
-		$url = $args[0];
+		$url      = $args[0];
+		$width    = Utils\get_flag_value( $assoc_args, 'width' );
+		$height   = Utils\get_flag_value( $assoc_args, 'height' );
+		$discover = Utils\get_flag_value( $assoc_args, 'discover' );
 
 		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
 		$oembed_args = array();
-		if ( null !== ( $width = Utils\get_flag_value( $assoc_args, 'width' ) ) ) {
+
+		if ( null !== $width ) {
 			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
 		}
-		if ( null !== ( $height = Utils\get_flag_value( $assoc_args, 'height' ) ) ) {
+		if ( null !== $height ) {
 			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
 		}
-		$discovers = null !== ( $discover = Utils\get_flag_value( $assoc_args, 'discover' ) ) ? array( $discover ? '1' : '0' ) : array( null, '1', '0' );
+		if ( null !== $discover ) {
+			$discovers = array( ( $discover ) ? '1' : '0' );
+		} else {
+			$discovers = array( null, '1', '0' );
+		}
 
 		$attr = wp_parse_args( $oembed_args, wp_embed_defaults( $url ) );
 
@@ -106,6 +117,7 @@ class Cache_Command extends WP_CLI_Command {
 			if ( null !== $discover ) {
 				$attr['discover'] = $discover;
 			}
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- needed to mimic WP Core behavior. See: \WP_Embed::shortcode.
 			$key_suffix = md5( $url . serialize( $attr ) );
 
 			$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
@@ -151,6 +163,7 @@ class Cache_Command extends WP_CLI_Command {
 		}
 
 		/** This filter is documented in wp-includes/class-wp-embed.php */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WP Core hook.
 		if ( ! in_array( $post->post_type, apply_filters( 'embed_cache_oembed_types', $post_types ), true ) ) {
 			WP_CLI::warning( sprintf( "Cannot cache oEmbed results for '%s' post type", $post->post_type ) );
 
