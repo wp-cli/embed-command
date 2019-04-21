@@ -4,10 +4,10 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 	return;
 }
 
-$autoload = __DIR__ . '/vendor/autoload.php';
+$wpcli_embed_autoloader = __DIR__ . '/vendor/autoload.php';
 
-if ( file_exists( $autoload ) ) {
-	require_once $autoload;
+if ( file_exists( $wpcli_embed_autoloader ) ) {
+	require_once $wpcli_embed_autoloader;
 }
 
 if ( class_exists( 'WP_CLI\Dispatcher\CommandNamespace' ) ) {
