@@ -75,13 +75,16 @@ class Fetch_Command extends WP_CLI_Command {
 		$post_id             = Utils\get_flag_value( $assoc_args, 'post-id' );
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover' );
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
+		$width               = Utils\get_flag_value( $assoc_args, 'width' );
+		$height              = Utils\get_flag_value( $assoc_args, 'height' );
 
 		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
 		$oembed_args = array();
-		if ( null !== ( $width = Utils\get_flag_value( $assoc_args, 'width' ) ) ) {
+
+		if ( null !== $width ) {
 			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
 		}
-		if ( null !== ( $height = Utils\get_flag_value( $assoc_args, 'height' ) ) ) {
+		if ( null !== $height ) {
 			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
 		}
 		if ( null !== $discover ) {
@@ -103,26 +106,36 @@ class Fetch_Command extends WP_CLI_Command {
 				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
 				// Fall through anyway...
 			}
-			add_filter( 'oembed_remote_get_args', function ( $args ) use ( $response_size_limit ) {
-				$args['limit_response_size'] = $response_size_limit;
+			add_filter(
+				'oembed_remote_get_args',
+				function ( $args ) use ( $response_size_limit ) {
+					$args['limit_response_size'] = $response_size_limit;
 
-				return $args;
-			}, PHP_INT_MAX );
+					return $args;
+				},
+				PHP_INT_MAX
+			);
 		}
 
 		// If raw, query providers directly, by-passing cache.
 		if ( $raw ) {
-			$oembed = new oEmbed; // Needs to be here to make sure `_wp_oembed_get_object()` defined (in "wp-includes/class-oembed.php" for WP < 4.7).
+			$oembed = new oEmbed(); // Needs to be here to make sure `_wp_oembed_get_object()` defined (in "wp-includes/class-oembed.php" for WP < 4.7).
 
 			$oembed_args['discover'] = $discover;
 
 			// Make 'oembed_dataparse' filter a no-op so get raw unsanitized data.
 			remove_all_filters( 'oembed_dataparse' ); // Save a few cycles.
-			add_filter( 'oembed_dataparse', function ( $return, $data, $url ) {
-				return $data;
-			}, PHP_INT_MAX, 3 );
+			add_filter(
+				'oembed_dataparse',
+				function ( $return, $data, $url ) {
+					return $data;
+				},
+				PHP_INT_MAX,
+				3
+			);
 
 			// Allow `wp_filter_pre_oembed_result()` to provide local URLs (WP >= 4.5.3).
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WP Core hook.
 			$data = apply_filters( 'pre_oembed_result', null, $url, $oembed_args );
 
 			if ( null === $data ) {
@@ -147,7 +160,7 @@ class Fetch_Command extends WP_CLI_Command {
 				if ( ! class_exists( 'SimpleXMLElement' ) ) {
 					WP_CLI::error( "The PHP extension 'SimpleXMLElement' is not available but is required for XML-formatted output." );
 				}
-				WP_CLI::log( $this->_oembed_create_xml( (array) $data ) );
+				WP_CLI::log( $this->oembed_create_xml( (array) $data ) );
 			} else {
 				WP_CLI::log( json_encode( $data ) );
 			}
@@ -156,6 +169,7 @@ class Fetch_Command extends WP_CLI_Command {
 		}
 
 		if ( $post_id ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the request is asking for a post id directly so need to override the global.
 			$GLOBALS['post'] = get_post( $post_id );
 			if ( null === $GLOBALS['post'] ) {
 				WP_CLI::warning( sprintf( "Post id '%s' not found.", $post_id ) );
@@ -190,7 +204,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 			// Check providers.
 			$oembed_args['discover'] = $discover;
-			$html = wp_oembed_get( $url, $oembed_args );
+			$html                    = wp_oembed_get( $url, $oembed_args );
 
 			// `wp_oembed_get()` returns zero-length string instead of false on failure due to `_strip_newlines()` 'oembed_dataparse' filter so make sure false.
 			if ( '' === $html ) {
@@ -220,7 +234,7 @@ class Fetch_Command extends WP_CLI_Command {
 	 * @param \SimpleXMLElement $node Optional. XML node to append the result to recursively.
 	 * @return string|false XML string on success, false on error.
 	 */
-	protected function _oembed_create_xml( $data, $node = null ) {
+	protected function oembed_create_xml( $data, $node = null ) {
 		if ( ! is_array( $data ) || empty( $data ) ) {
 			return false;
 		}
@@ -236,7 +250,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 			if ( is_array( $value ) ) {
 				$item = $node->addChild( $key );
-				$this->_oembed_create_xml( $value, $item );
+				$this->oembed_create_xml( $value, $item );
 			} else {
 				$node->addChild( $key, esc_html( $value ) );
 			}
