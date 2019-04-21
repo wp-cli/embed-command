@@ -226,9 +226,9 @@ class Fetch_Command extends WP_CLI_Command {
 	/**
 	 * Creates an XML string from a given array.
 	 *
-	 * Same as `\oembed_create_xml()` in "wp-includes\embed.php" introduced in WP 4.4.0. Polyfilled as marked private (and also to cater for older WP versions).
+	 * Same as `\_oembed_create_xml()` in "wp-includes\embed.php" introduced in WP 4.4.0. Polyfilled as marked private (and also to cater for older WP versions).
 	 *
-	 * @see oembed_create_xml()
+	 * @see _oembed_create_xml()
 	 *
 	 * @param array            $data The original oEmbed response data.
 	 * @param \SimpleXMLElement $node Optional. XML node to append the result to recursively.
