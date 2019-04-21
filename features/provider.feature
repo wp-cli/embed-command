@@ -2,9 +2,17 @@ Feature: Manage oEmbed providers.
 
   Background:
     Given a WP install
+    And a filter-providers.php file:
+      """
+      <?php
+      WP_CLI::add_wp_hook( 'oembed_providers', function ( $providers ) {
+        $providers['http://example.com/*'] = [ 'http://example.com/api/oembed.{format}', false ];
+        return $providers;
+      });
+      """
 
   Scenario: List oEmbed providers
-    When I run `wp embed provider list`
+    When I run `wp embed provider list --require=filter-providers.php`
     And save STDOUT as {DEFAULT_STDOUT}
     Then STDOUT should contain:
       """
@@ -17,6 +25,14 @@ Feature: Manage oEmbed providers.
     And STDOUT should not contain:
       """
       regex
+      """
+    And STDOUT should contain:
+      """
+      http://example.com/*
+      """
+    And STDOUT should contain:
+      """
+      http://example.com/api/oembed.{format}
       """
     And STDOUT should contain:
       """
@@ -51,16 +67,24 @@ Feature: Manage oEmbed providers.
       spotify.com
       """
 
-    When I run `wp embed provider list --fields=format,endpoint`
+    When I run `wp embed provider list --fields=format,endpoint --require=filter-providers.php`
     Then STDOUT should be:
       """
       {DEFAULT_STDOUT}
       """
 
-    When I run `wp embed provider list --force-regex`
+    When I run `wp embed provider list --force-regex --require=filter-providers.php`
+    Then STDOUT should contain:
+      """
+      #https?\://example\.com/(.+)#i
+      """
+    And STDOUT should contain:
+      """
+      http://example.com/api/oembed.{format}
+      """
     Then STDOUT should not contain:
       """
-      {DEFAULT_STDOUT}
+      http://example.com/*
       """
     And STDOUT should match /^#http/m
 
