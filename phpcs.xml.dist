@@ -51,4 +51,9 @@
 		</properties>
 	</rule>
 
+	<!-- Exclude existing classes from the prefix rule as it would break BC to prefix them now. -->
+	<rule ref="PEAR.NamingConventions.ValidClassName.StartWithCapital">
+		<exclude-pattern>*/src/oEmbed.php</exclude-pattern>
+	</rule>
+
 </ruleset>
