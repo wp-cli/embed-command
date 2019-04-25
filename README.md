@@ -100,8 +100,6 @@ wp embed provider
 
 
 
-
-
 ### wp embed provider list
 
 Lists all available oEmbed providers.
@@ -202,8 +200,6 @@ wp embed handler
 
 
 
-
-
 ### wp embed handler list
 
 Lists all available embed handlers.
@@ -262,8 +258,6 @@ Finds, triggers, and deletes oEmbed caches.
 ~~~
 wp embed cache
 ~~~
-
-
 
 
 
