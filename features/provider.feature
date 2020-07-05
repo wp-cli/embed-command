@@ -127,6 +127,7 @@ Feature: Manage oEmbed providers.
     When I run `wp embed provider list --field=regex`
     Then STDOUT should match /^(?:(?:1|0)\n)+$/
 
+  @require-wp-4.0
   Scenario: Match an oEmbed provider
     # Provider not requiring discovery
     When I run `wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ`
@@ -241,6 +242,7 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should be empty
 
+  @require-wp-4.0
   Scenario: Only match an oEmbed provider if discover
     When I try `wp embed provider match https://asciinema.org/a/140798 --no-discover`
     Then the return code should be 1
