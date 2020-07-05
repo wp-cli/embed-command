@@ -3,7 +3,7 @@ Feature: Manage oEmbed cache.
   Background:
     Given a WP install
 
-  # Behavior that's the same for all WP versions.
+  @require-wp-4.0
   Scenario: Get HTML embed code for a given URL
     # Known provider not requiring discovery.
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500`
@@ -98,7 +98,7 @@ Feature: Manage oEmbed cache.
     And STDOUT should be empty
 
   # No sanitization prior to WP 4.4.
-  @less-than-wp-4.4
+  @less-than-wp-4.4 @require-wp-4.0
   Scenario: Get HTML embed code for a given URL that requires discovery and is sanitized
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
     When I try `wp embed fetch https://asciinema.org/a/140798`
@@ -112,6 +112,7 @@ Feature: Manage oEmbed cache.
       asciinema.org/
       """
 
+  @require-wp-4.0
   Scenario: Get raw oEmbed data for a given URL
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw`
     And save STDOUT as {DEFAULT_STDOUT}
@@ -140,6 +141,7 @@ Feature: Manage oEmbed cache.
       asciinema.org
       """
 
+  @require-wp-4.0
   Scenario: Fail then succeed when given unknown discoverable provider for a raw request, depending on discover option
     When I try `wp embed fetch http://LearningApps.org/259 --raw --no-discover`
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discovery so use "contain" to ignore these.
@@ -160,6 +162,7 @@ Feature: Manage oEmbed cache.
       LearningApps.org
      """
 
+  @require-wp-4.0
   Scenario: Bails when no oEmbed provider is found for a raw request
     When I try `wp embed fetch https://foo.example.com --raw`
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discovery so use "contain" to ignore these.
@@ -168,6 +171,7 @@ Feature: Manage oEmbed cache.
       Error: No oEmbed provider found for given URL.
       """
 
+  @require-wp-4.0
   Scenario: Bails when no oEmbed provider is found for a raw request and discovery is off
     When I try `wp embed fetch https://foo.example.com --raw --discover=0`
     Then STDERR should be:
@@ -185,7 +189,7 @@ Feature: Manage oEmbed cache.
       """
 
   # WP prior to 4.9 does not return clickable link.
-  @less-than-wp-4.9
+  @less-than-wp-4.9 @require-wp-4.0
   Scenario: Doesn't make unknown URLs clickable
     When I try `wp embed fetch https://foo.example.com`
     Then the return code should be 1
@@ -196,6 +200,7 @@ Feature: Manage oEmbed cache.
       """
     And STDOUT should be empty
 
+  @require-wp-4.0
   Scenario: Caches oEmbed response data for a given post
     # Note need post author for 'unfiltered_html' check to work for WP < 4.4.
     When I run `wp post create --post_title="Foo Bar" --post_author=1 --porcelain`
@@ -220,6 +225,7 @@ Feature: Manage oEmbed cache.
       Success: Cleared oEmbed cache.
       """
 
+  @require-wp-4.0
   Scenario: Return data as XML when requested
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw-format=xml --raw`
     Then STDOUT should contain:
@@ -348,6 +354,7 @@ Feature: Manage oEmbed cache.
       <iframe
       """
 
+  @require-wp-4.0
   Scenario: Invoke built-in audio handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -373,6 +380,7 @@ Feature: Manage oEmbed cache.
       <audio
       """
 
+  @require-wp-4.0
   Scenario: Invoke built-in video handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -399,7 +407,7 @@ Feature: Manage oEmbed cache.
       """
 
   # `wp_embed_handler_googlevideo` handler deprecated WP 4.6.
-  @less-than-wp-4.6
+  @less-than-wp-4.6 @require-wp-4.0
   Scenario: Invoke built-in Google Video handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -415,6 +423,7 @@ Feature: Manage oEmbed cache.
       <embed
       """
 
+  @require-wp-4.0
   Scenario: Incompatible options
     When I try `wp embed fetch https://www.example.com/watch?v=dQw4w9WgXcQ --no-discover --limit-response-size=50000`
     Then the return code should be 1
