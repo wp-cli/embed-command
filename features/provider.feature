@@ -265,7 +265,7 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should contain:
       """
-      140798
+      collection
       """
 
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
