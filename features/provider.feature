@@ -138,7 +138,7 @@ Feature: Manage oEmbed providers.
 
     # Provider requiring discovery
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed provider match https://asciinema.org/a/140798`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus`
     And save STDOUT as {DEFAULT_STDOUT}
     Then the return code should be 0
     And STDERR should not contain:
@@ -147,7 +147,7 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should contain:
       """
-      asciinema.org/
+      audio.com/
       """
     And STDOUT should contain:
       """
@@ -159,7 +159,7 @@ Feature: Manage oEmbed providers.
       """
 
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed provider match https://asciinema.org/a/140798 --link-type=json`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --link-type=json`
     Then the return code should be 0
     And STDERR should not contain:
       """
@@ -171,7 +171,7 @@ Feature: Manage oEmbed providers.
       """
 
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed provider match https://asciinema.org/a/140798 --link-type=xml`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --link-type=xml`
     Then the return code should be 0
     And STDERR should not contain:
       """
@@ -183,7 +183,7 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should contain:
       """
-      asciinema.org/
+      audio.com/
       """
     And STDOUT should contain:
       """
@@ -197,11 +197,11 @@ Feature: Manage oEmbed providers.
   # Depends on `oembed_remote_get_args` filter introduced in WP 4.0 https://core.trac.wordpress.org/ticket/23442
   @require-wp-4.0
   Scenario: Discover a provider with limited response size
-    When I run `wp embed provider match https://asciinema.org/a/140798`
+    When I run `wp embed provider match https://audio.com/audio-com/collections/ambient-focus`
     And save STDOUT as {DEFAULT_STDOUT}
 
     # Response limit too small
-    When I try `wp embed provider match https://asciinema.org/a/140798 --limit-response-size=10`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --limit-response-size=10`
     Then the return code should be 1
     And STDERR should be:
       """
@@ -209,7 +209,7 @@ Feature: Manage oEmbed providers.
       """
 
     # Response limit big enough
-    When I run `wp embed provider match https://asciinema.org/a/140798 --limit-response-size=50000`
+    When I run `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --limit-response-size=50000`
     Then STDOUT should be:
       """
       {DEFAULT_STDOUT}
@@ -244,7 +244,7 @@ Feature: Manage oEmbed providers.
 
   @require-wp-4.0
   Scenario: Only match an oEmbed provider if discover
-    When I try `wp embed provider match https://asciinema.org/a/140798 --no-discover`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --no-discover`
     Then the return code should be 1
     And STDERR should be:
       """
@@ -253,7 +253,7 @@ Feature: Manage oEmbed providers.
     And STDOUT should be empty
 
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed provider match https://asciinema.org/a/140798`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus`
     Then the return code should be 0
     And STDERR should not contain:
       """
@@ -261,15 +261,15 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should contain:
       """
-      asciinema.org/
+      audio.com/
       """
     And STDOUT should contain:
       """
-      140798
+      collection
       """
 
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed provider match https://asciinema.org/a/140798 --discover`
+    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --discover`
     Then the return code should be 0
     And STDERR should not contain:
       """
@@ -277,7 +277,7 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should contain:
       """
-      asciinema.org/
+     audio.com/
       """
 
   Scenario: Incompatible or wrong options
