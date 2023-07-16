@@ -54,7 +54,7 @@ Feature: Manage oEmbed cache.
 
     # Unknown provider requiring discovery but not returning iframe so would be sanitized for WP >= 4.4 without 'skip-sanitization' option.
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed fetch https://view.ceros.com/ceros/new-experience-3/p/1 --skip-sanitization`
+    When I try `wp embed fetch https://app.ex.co/stories/item/8fb2343f-fa5d-48d4-8723-f8b5d51cc1a9 --skip-sanitization`
     Then the return code should be 0
     And STDERR should not contain:
       """
@@ -62,7 +62,7 @@ Feature: Manage oEmbed cache.
       """
     And STDOUT should contain:
       """
-      ceros.com/
+      app.ex.co/
       """
     And STDOUT should contain:
       """
@@ -72,14 +72,18 @@ Feature: Manage oEmbed cache.
       """
       <iframe
      """
+    And STDOUT should not contain:
+      """
+      <script
+     """
 
   # WP 4.9 always returns clickable link even for sanitized oEmbed responses.
   @require-wp-4.9
   Scenario: Get HTML embed code for a given URL that requires discovery and is sanitized
-    When I run `wp embed fetch https://view.ceros.com/ceros/new-experience-3/p/1`
+    When I run `wp embed fetch https://app.ex.co/stories/item/8fb2343f-fa5d-48d4-8723-f8b5d51cc1a9`
     Then STDOUT should contain:
       """
-      ceros.com/
+      app.ex.co/
       """
     And STDOUT should contain:
       """
