@@ -3,6 +3,20 @@ Feature: Manage oEmbed cache.
   Background:
     Given a WP install
 
+  Scenario: Clear oEmbed cache with no arguments
+    When I try `wp embed cache clear`
+    Then STDERR should be:
+      """
+      Error: You must specify at least one post id or use --all
+      """
+
+  Scenario: Clear oEmbed cache with both arguments
+    When I try `wp embed cache clear 1 --all`
+    Then STDERR should be:
+      """
+      Error: You cannot specify both a post id and use --all
+      """
+
   Scenario: Clear oEmbed cache for an empty post
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -11,14 +25,14 @@ Feature: Manage oEmbed cache.
     When I try `wp embed cache clear {POST_ID}`
     Then STDERR should be:
       """
-      Error: No cache to clear!
+      Error: No oEmbed cache to clear!
       """
 
   Scenario: Clear oEmbed cache for a post
-    When I run `wp post-meta add 1 _oembed_foo 'bar'`
+    When I run `wp post meta add 1 _oembed_foo 'bar'`
     Then STDOUT should not be empty
 
-    When I run `wp post-meta get 1 _oembed_foo`
+    When I run `wp post meta get 1 _oembed_foo`
     Then STDOUT should be:
       """
       bar
@@ -28,6 +42,27 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be:
       """
       Success: Cleared oEmbed cache.
+      """
+
+  Scenario: Clear all oEmbed caches
+    # No oEmbed caches yet
+    When I try `wp embed cache clear --all`
+    Then STDERR should be:
+      """
+      Error: No oEmbed caches to clear!
+      """
+
+    # Generate some various oEmbed caches types
+    When I run `wp post generate --post_type=oembed_cache --post_date="2000-01-01" --post_title=$(wp eval 'echo md5( "foo" );') --count=10`
+    And I run `wp post meta add 1 _oembed_$(wp eval 'echo md5( "foo" );') foo`
+    And I run `wp post meta add 1 _oembed_$(wp eval 'echo md5( "bar" );') bar`
+    # Make sure we don't clear non-oEmbed caches
+    And I run `wp post meta add 1 _oembed_foo bar`
+    And I run `wp transient set oembed_$(wp eval 'echo md5( "bar" );') bar $(wp eval 'echo DAY_IN_SECONDS;')`
+    And I run `wp embed cache clear --all`
+    Then STDOUT should be:
+      """
+      Success: Cleared 4 oEmbed caches: 2 post meta caches, 1 post cache, 1 transient cache.
       """
 
   Scenario: Trigger and clear oEmbed cache for a post

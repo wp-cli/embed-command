@@ -3,9 +3,7 @@
 namespace WP_CLI\Embeds;
 
 use WP_CLI;
-use WP_CLI\Process;
 use WP_CLI\Utils;
-use WP_CLI\Formatter;
 use WP_CLI_Command;
 
 /**
@@ -20,34 +18,112 @@ class Cache_Command extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <post_id>
+	 * [<post_id>]
 	 * : ID of the post to clear the cache for.
+	 *
+	 * [--all]
+	 * : Clear all oEmbed caches.
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Clear cache for a post
 	 *     $ wp embed cache clear 123
 	 *     Success: Cleared oEmbed cache.
+	 *
+	 *     # Clear all caches
+	 *     $ wp embed cache clear --all
+	 *     Success: Cleared all oEmbed caches.
 	 */
 	public function clear( $args, $assoc_args ) {
 		/** @var \WP_Embed $wp_embed */
-		global $wp_embed;
+		global $wp_embed, $wpdb;
 
-		$post_id = $args[0];
+		$all = \WP_CLI\Utils\get_flag_value( $assoc_args, 'all' );
 
-		$post_metas = get_post_custom_keys( $post_id );
+		$post_id = isset( $args[0] ) ? $args[0] : null;
 
-		if ( $post_metas ) {
-			$post_metas = array_filter(
-				$post_metas,
+		if ( null === $all && null === $post_id ) {
+			WP_CLI::error( 'You must specify at least one post id or use --all' );
+		}
+
+		if ( $post_id && $all ) {
+			WP_CLI::error( 'You cannot specify both a post id and use --all' );
+		}
+
+		// Delete all oEmbed caches.
+		if ( $all ) {
+			// Delete post meta oEmbed caches
+			$count_metas = $wpdb->query(
+				"DELETE FROM $wpdb->postmeta
+				WHERE meta_key REGEXP '^_oembed_[0-9a-f]{32}$'
+				OR meta_key REGEXP '^_oembed_time_[0-9a-f]{32}$'"
+			);
+			// Delete posts oEmbed caches
+			$count_posts = $wpdb->query(
+				"DELETE FROM $wpdb->posts
+				WHERE post_type = 'oembed_cache'
+				AND post_status = 'publish'
+				AND post_name REGEXP '^[0-9a-f]{32}$'"
+			);
+			// Delete transient oEmbed caches
+			$count_transients = $wpdb->query(
+				"DELETE FROM $wpdb->options
+				WHERE option_name REGEXP '^_transient_oembed_[0-9a-f]{32}$'
+				OR option_name REGEXP '^_transient_oembed_time_[0-9a-f]{32}$'"
+			);
+
+			$total = $count_metas + $count_posts + $count_transients;
+
+			if ( empty( $total ) ) {
+				WP_CLI::error( 'No oEmbed caches to clear!' );
+			}
+
+			$report = array_filter(
+				array(
+					'post meta' => $count_metas,
+					'post'      => $count_posts,
+					'transient' => $count_transients,
+				),
+				function ( $count ) {
+					return $count > 0;
+				}
+			);
+
+			$details = array();
+			foreach ( $report as $type => $count ) {
+				$details[] = sprintf(
+					'%1$d %2$s %3$s',
+					$count,
+					$type,
+					_n( 'cache', 'caches', $count )
+				);
+			}
+
+			$message = sprintf(
+				'Cleared %1$d oEmbed %2$s: %3$s.',
+				$total,
+				_n( 'cache', 'caches', $total ),
+				implode( ', ', $details )
+			);
+
+			WP_CLI::success( $message );
+			return;
+		}
+
+		// Delete oEmbed caches for a given post.
+		$count_metas = get_post_custom_keys( $post_id );
+
+		if ( $count_metas ) {
+			$count_metas = array_filter(
+				$count_metas,
 				function ( $v ) {
 					return '_oembed_' === substr( $v, 0, 8 );
 				}
 			);
 		}
 
-		if ( empty( $post_metas ) ) {
-			WP_CLI::error( 'No cache to clear!' );
+		if ( empty( $count_metas ) ) {
+			WP_CLI::error( 'No oEmbed cache to clear!' );
 		}
 
 		$wp_embed->delete_oembed_caches( $post_id );
