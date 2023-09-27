@@ -62,7 +62,7 @@ Feature: Manage oEmbed cache.
     And I run `wp embed cache clear --all`
     Then STDOUT should be:
       """
-      Success: Cleared 4 oEmbed caches: 2 post meta caches, 1 post cache, 1 transient cache.
+      Success: Cleared 3 oEmbed caches: 1 post cache, 1 oembed post cache, 1 transient cache.
       """
 
   Scenario: Trigger and clear oEmbed cache for a post

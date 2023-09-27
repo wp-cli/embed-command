@@ -52,61 +52,79 @@ class Cache_Command extends WP_CLI_Command {
 
 		// Delete all oEmbed caches.
 		if ( $all ) {
-			// Delete post meta oEmbed caches
-			$count_metas = $wpdb->query(
-				"DELETE FROM $wpdb->postmeta
+			// Get post meta oEmbed caches
+			$oembed_post_meta_post_ids = (array) $wpdb->get_col(
+				"SELECT DISTINCT post_id FROM $wpdb->postmeta
 				WHERE meta_key REGEXP '^_oembed_[0-9a-f]{32}$'
 				OR meta_key REGEXP '^_oembed_time_[0-9a-f]{32}$'"
 			);
-			// Delete posts oEmbed caches
-			$count_posts = $wpdb->query(
-				"DELETE FROM $wpdb->posts
+			// Get posts oEmbed caches
+			$oembed_post_post_ids = (array) $wpdb->get_col(
+				"SELECT ID FROM $wpdb->posts
 				WHERE post_type = 'oembed_cache'
 				AND post_status = 'publish'
 				AND post_name REGEXP '^[0-9a-f]{32}$'"
 			);
-			// Delete transient oEmbed caches
-			$count_transients = $wpdb->query(
-				"DELETE FROM $wpdb->options
-				WHERE option_name REGEXP '^_transient_oembed_[0-9a-f]{32}$'
-				OR option_name REGEXP '^_transient_oembed_time_[0-9a-f]{32}$'"
+
+			// Get transient oEmbed caches
+			$oembed_transients = $wpdb->get_col(
+				"SELECT option_name FROM $wpdb->options
+				WHERE option_name REGEXP '^_transient_oembed_[0-9a-f]{32}$'"
 			);
 
-			$total = $count_metas + $count_posts + $count_transients;
+			$oembed_caches = array(
+				'post' => $oembed_post_meta_post_ids,
+				'oembed post' => $oembed_post_post_ids,
+				'transient' => $oembed_transients,
+			);
 
-			if ( empty( $total ) ) {
+			$total = array_sum( array_map( function( $items ) {
+				return count( $items );
+			}, $oembed_caches ) );
+
+			// Delete post meta oEmbed caches
+			foreach ( $oembed_post_meta_post_ids as $post_id ) {
+				$wp_embed->delete_oembed_caches( $post_id );
+			}
+
+			// Delete posts oEmbed caches
+			foreach ( $oembed_post_post_ids as $post_id ) {
+				wp_delete_post( $post_id, true );
+			}
+
+			// Delete transient oEmbed caches
+			foreach ( $oembed_transients as $option_name ) {
+				delete_transient( str_replace( '_transient_', '', $option_name ) );
+			}
+
+			if ( $total > 0 ) {
+				$details = array();
+				foreach ( $oembed_caches as $type => $items ) {
+					$count = count( $items );
+					$details[] = sprintf(
+						'%1$d %2$s %3$s',
+						$count,
+						$type,
+						Utils\pluralize( 'cache', $count )
+					);
+				}
+
+				$message = sprintf(
+					'Cleared %1$d oEmbed %2$s: %3$s.',
+					$total,
+					Utils\pluralize( 'cache', $total ),
+					implode( ', ', $details )
+				);
+
+				WP_CLI::success( $message );
+			} else {
 				WP_CLI::error( 'No oEmbed caches to clear!' );
 			}
 
-			$report = array_filter(
-				array(
-					'post meta' => $count_metas,
-					'post'      => $count_posts,
-					'transient' => $count_transients,
-				),
-				function ( $count ) {
-					return $count > 0;
-				}
-			);
-
-			$details = array();
-			foreach ( $report as $type => $count ) {
-				$details[] = sprintf(
-					'%1$d %2$s %3$s',
-					$count,
-					$type,
-					_n( 'cache', 'caches', $count )
-				);
+			if ( wp_using_ext_object_cache() ) {
+				WP_CLI::warning( 'Oembed transients are stored in an external object cache, and this command only deletes those stored in the database. You must flush the cache to delete all transients.' );
 			}
 
-			$message = sprintf(
-				'Cleared %1$d oEmbed %2$s: %3$s.',
-				$total,
-				_n( 'cache', 'caches', $total ),
-				implode( ', ', $details )
-			);
-
-			WP_CLI::success( $message );
 			return;
 		}
 
