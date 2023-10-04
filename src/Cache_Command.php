@@ -47,7 +47,7 @@ class Cache_Command extends WP_CLI_Command {
 		}
 
 		if ( $post_id && $all ) {
-			WP_CLI::error( 'You cannot specify both a post id and use --all' );
+			WP_CLI::error( 'You cannot specify both a post ID and use --all.' );
 		}
 
 		// Delete all oEmbed caches.
