@@ -141,7 +141,7 @@ class Cache_Command extends WP_CLI_Command {
 		}
 
 		if ( empty( $count_metas ) ) {
-			WP_CLI::error( 'No oEmbed cache to clear!' );
+			WP_CLI::error( 'No oEmbed cache to clear.' );
 		}
 
 		$wp_embed->delete_oembed_caches( $post_id );
