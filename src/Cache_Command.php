@@ -43,7 +43,7 @@ class Cache_Command extends WP_CLI_Command {
 		$post_id = isset( $args[0] ) ? $args[0] : null;
 
 		if ( null === $all && null === $post_id ) {
-			WP_CLI::error( 'You must specify at least one post id or use --all' );
+			WP_CLI::error( 'You must specify at least one post ID or use --all.' );
 		}
 
 		if ( $post_id && $all ) {
