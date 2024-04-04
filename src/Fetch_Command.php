@@ -127,7 +127,7 @@ class Fetch_Command extends WP_CLI_Command {
 			remove_all_filters( 'oembed_dataparse' ); // Save a few cycles.
 			add_filter(
 				'oembed_dataparse',
-				function ( $ret, $data, $url ) {
+				function ( $ret, $data, $url ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 					return $data;
 				},
 				PHP_INT_MAX,
