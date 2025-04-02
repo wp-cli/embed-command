@@ -1,4 +1,4 @@
-Feature: Manage oEmbed cache.
+Feature: Manage oEmbed fetch.
 
   Background:
     Given a WP install
