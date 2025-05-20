@@ -100,10 +100,6 @@ class Cache_Command extends WP_CLI_Command {
 	 *     123
 	 */
 	public function find( $args, $assoc_args ) {
-		if ( Utils\wp_version_compare( '4.9', '<' ) ) {
-			WP_CLI::error( 'Requires WordPress 4.9 or greater.' );
-		}
-
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
@@ -139,7 +135,7 @@ class Cache_Command extends WP_CLI_Command {
 			$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
 
 			if ( $cached_post_id ) {
-				WP_CLI::line( $cached_post_id );
+				WP_CLI::line( (string) $cached_post_id );
 
 				return;
 			}
