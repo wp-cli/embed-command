@@ -83,7 +83,7 @@ class Provider_Command extends WP_CLI_Command {
 	 */
 	public function list_providers( $args, $assoc_args ) {
 
-		$oembed = new oEmbed();
+		$oembed = new \WP_oEmbed();
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
 
@@ -140,10 +140,10 @@ class Provider_Command extends WP_CLI_Command {
 	 * @subcommand match
 	 */
 	public function match_provider( $args, $assoc_args ) {
-		$oembed = new oEmbed();
+		$oembed = new \WP_oEmbed();
 
 		$url                 = $args[0];
-		$discover            = \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
+		$discover            = (bool) \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
 		$response_size_limit = \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit-response-size' );
 		$link_type           = \WP_CLI\Utils\get_flag_value( $assoc_args, 'link-type' );
 
@@ -159,10 +159,6 @@ class Provider_Command extends WP_CLI_Command {
 		}
 
 		if ( $response_size_limit ) {
-			if ( Utils\wp_version_compare( '4.0', '<' ) ) {
-				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
-				// Fall through anyway...
-			}
 			add_filter(
 				'oembed_remote_get_args',
 				function ( $args ) use ( $response_size_limit ) {
