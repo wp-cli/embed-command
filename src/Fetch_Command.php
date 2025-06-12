@@ -70,7 +70,7 @@ class Fetch_Command extends WP_CLI_Command {
 		global $wp_embed;
 
 		$url        = $args[0];
-		$raw        = (bool) Utils\get_flag_value( $assoc_args, 'raw' );
+		$raw        = Utils\get_flag_value( $assoc_args, 'raw' );
 		$raw_format = Utils\get_flag_value( $assoc_args, 'raw-format' );
 
 		/**
@@ -184,11 +184,11 @@ class Fetch_Command extends WP_CLI_Command {
 			}
 		}
 
-		if ( (bool) Utils\get_flag_value( $assoc_args, 'skip-sanitization' ) ) {
+		if ( Utils\get_flag_value( $assoc_args, 'skip-sanitization', false ) ) {
 			remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10 );
 		}
 
-		if ( (bool) Utils\get_flag_value( $assoc_args, 'skip-cache' ) ) {
+		if ( Utils\get_flag_value( $assoc_args, 'skip-cache', false ) ) {
 			$wp_embed->usecache = false;
 			// In order to skip caching, also need `$cached_recently` to be false in `WP_Embed::shortcode()`, so set TTL to zero.
 			add_filter( 'oembed_ttl', '__return_zero', PHP_INT_MAX );
