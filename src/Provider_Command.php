@@ -80,6 +80,9 @@ class Provider_Command extends WP_CLI_Command {
 	 *     | #https?://wordpress\.tv/.*#i | https://wordpress.tv/oembed/            |
 	 *
 	 * @subcommand list
+	 *
+	 * @param string[] $args Positional arguments. Unused.
+	 * @param array{field?: string, fields?: string, format: 'table'|'csv'|'json', 'force-regex'?: bool} $assoc_args Associative arguments.
 	 */
 	public function list_providers( $args, $assoc_args ) {
 
@@ -138,14 +141,17 @@ class Provider_Command extends WP_CLI_Command {
 	 *     https://www.youtube.com/oembed
 	 *
 	 * @subcommand match
+	 *
+	 * @param array{0: string} $args Positional arguments.
+	 * @param array{discover?: bool, 'limit-response-size'?: string, 'link-type'?: 'json'|'xml', } $assoc_args Associative arguments.
 	 */
 	public function match_provider( $args, $assoc_args ) {
 		$oembed = new \WP_oEmbed();
 
 		$url                 = $args[0];
-		$discover            = (bool) \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
-		$response_size_limit = \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit-response-size' );
-		$link_type           = \WP_CLI\Utils\get_flag_value( $assoc_args, 'link-type' );
+		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
+		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
+		$link_type           = Utils\get_flag_value( $assoc_args, 'link-type' );
 
 		if ( ! $discover && ( null !== $response_size_limit || null !== $link_type ) ) {
 			if ( null !== $response_size_limit && null !== $link_type ) {
@@ -162,7 +168,7 @@ class Provider_Command extends WP_CLI_Command {
 			add_filter(
 				'oembed_remote_get_args',
 				function ( $args ) use ( $response_size_limit ) {
-					$args['limit_response_size'] = $response_size_limit;
+					$args['limit_response_size'] = (int) $response_size_limit;
 					return $args;
 				}
 			);
