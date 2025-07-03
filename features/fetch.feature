@@ -90,32 +90,6 @@ Feature: Manage oEmbed fetch.
       <a
       """
 
-  # `wp_filter_oembed_result` filter introduced WP 4.4 which sanitizes oEmbed responses that don't include an iframe.
-  @less-than-wp-4.9 @require-wp-4.4
-  Scenario: Get HTML embed code for a given URL that requires discovery and is sanitized
-    When I try `wp embed fetch https://view.ceros.com/ceros/new-experience-3/p/1`
-    Then the return code should be 1
-    And STDERR should be:
-      """
-      Error: There was an error fetching the oEmbed data.
-      """
-    And STDOUT should be empty
-
-  # No sanitization prior to WP 4.4.
-  @less-than-wp-4.4 @require-wp-4.0
-  Scenario: Get HTML embed code for a given URL that requires discovery and is sanitized
-    # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "try" to cater for these.
-    When I try `wp embed fetch https://view.ceros.com/ceros/new-experience-3/p/1`
-    Then the return code should be 0
-    And STDERR should not contain:
-      """
-      Error:
-      """
-    And STDOUT should contain:
-      """
-      ceros.com/
-      """
-
   @require-wp-4.0
   Scenario: Get raw oEmbed data for a given URL
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw`
@@ -191,18 +165,6 @@ Feature: Manage oEmbed fetch.
       """
       <a href="https://foo.example.com">https://foo.example.com</a>
       """
-
-  # WP prior to 4.9 does not return clickable link.
-  @less-than-wp-4.9 @require-wp-4.0
-  Scenario: Doesn't make unknown URLs clickable
-    When I try `wp embed fetch https://foo.example.com`
-    Then the return code should be 1
-    # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discover so use "contain" to cater for these.
-    And STDERR should contain:
-      """
-      Error: There was an error fetching the oEmbed data.
-      """
-    And STDOUT should be empty
 
   @require-wp-4.0
   Scenario: Caches oEmbed response data for a given post
@@ -408,23 +370,6 @@ Feature: Manage oEmbed fetch.
     And STDOUT should contain:
       """
       <video
-      """
-
-  # `wp_embed_handler_googlevideo` handler deprecated WP 4.6.
-  @less-than-wp-4.6 @require-wp-4.0
-  Scenario: Invoke built-in Google Video handler
-    When I run `wp post create --post_title="Foo Bar" --porcelain`
-    Then STDOUT should be a number
-    And save STDOUT as {POST_ID}
-
-    When I run `wp embed fetch http://video.google.com/videoplay?docid=123456789 --post-id={POST_ID}`
-    Then STDOUT should contain:
-      """
-      video.google.com
-      """
-    And STDOUT should contain:
-      """
-      <embed
       """
 
   @require-wp-4.0

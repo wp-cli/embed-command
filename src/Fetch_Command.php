@@ -69,23 +69,35 @@ class Fetch_Command extends WP_CLI_Command {
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
-		$url                 = $args[0];
-		$raw                 = Utils\get_flag_value( $assoc_args, 'raw' );
-		$raw_format          = Utils\get_flag_value( $assoc_args, 'raw-format' );
+		$url        = $args[0];
+		$raw        = Utils\get_flag_value( $assoc_args, 'raw' );
+		$raw_format = Utils\get_flag_value( $assoc_args, 'raw-format' );
+
+		/**
+		 * @var string|null $post_id
+		 */
 		$post_id             = Utils\get_flag_value( $assoc_args, 'post-id' );
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover' );
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
-		$width               = Utils\get_flag_value( $assoc_args, 'width' );
-		$height              = Utils\get_flag_value( $assoc_args, 'height' );
+
+		/**
+		 * @var string $width
+		 */
+		$width = Utils\get_flag_value( $assoc_args, 'width' );
+
+		/**
+		 * @var string $height
+		 */
+		$height = Utils\get_flag_value( $assoc_args, 'height' );
 
 		// The `$key_suffix` used for caching is part based on serializing the attributes array without normalizing it first so need to try to replicate that.
 		$oembed_args = array();
 
 		if ( null !== $width ) {
-			$oembed_args['width'] = $width; // Keep as string as if from a shortcode attribute.
+			$oembed_args['width'] = (int) $width;
 		}
 		if ( null !== $height ) {
-			$oembed_args['height'] = $height; // Keep as string as if from a shortcode attribute.
+			$oembed_args['height'] = (int) $height;
 		}
 		if ( null !== $discover ) {
 			$oembed_args['discover'] = $discover ? '1' : '0'; // Make it a string as if from a shortcode attribute.
@@ -102,10 +114,6 @@ class Fetch_Command extends WP_CLI_Command {
 		}
 
 		if ( $response_size_limit ) {
-			if ( Utils\wp_version_compare( '4.0', '<' ) ) {
-				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
-				// Fall through anyway...
-			}
 			add_filter(
 				'oembed_remote_get_args',
 				function ( $args ) use ( $response_size_limit ) {
@@ -119,7 +127,7 @@ class Fetch_Command extends WP_CLI_Command {
 
 		// If raw, query providers directly, by-passing cache.
 		if ( $raw ) {
-			$oembed = new oEmbed(); // Needs to be here to make sure `_wp_oembed_get_object()` defined (in "wp-includes/class-oembed.php" for WP < 4.7).
+			$oembed = new \WP_oEmbed();
 
 			$oembed_args['discover'] = $discover;
 
@@ -160,9 +168,9 @@ class Fetch_Command extends WP_CLI_Command {
 				if ( ! class_exists( 'SimpleXMLElement' ) ) {
 					WP_CLI::error( "The PHP extension 'SimpleXMLElement' is not available but is required for XML-formatted output." );
 				}
-				WP_CLI::log( $this->oembed_create_xml( (array) $data ) );
+				WP_CLI::log( (string) $this->oembed_create_xml( (array) $data ) );
 			} else {
-				WP_CLI::log( json_encode( $data ) );
+				WP_CLI::log( (string) json_encode( $data ) );
 			}
 
 			return;
@@ -170,17 +178,17 @@ class Fetch_Command extends WP_CLI_Command {
 
 		if ( $post_id ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- the request is asking for a post id directly so need to override the global.
-			$GLOBALS['post'] = get_post( $post_id );
+			$GLOBALS['post'] = get_post( (int) $post_id );
 			if ( null === $GLOBALS['post'] ) {
 				WP_CLI::warning( sprintf( "Post id '%s' not found.", $post_id ) );
 			}
 		}
 
-		if ( Utils\get_flag_value( $assoc_args, 'skip-sanitization' ) ) {
-			remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10, 3 );
+		if ( Utils\get_flag_value( $assoc_args, 'skip-sanitization', false ) ) {
+			remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10 );
 		}
 
-		if ( Utils\get_flag_value( $assoc_args, 'skip-cache' ) ) {
+		if ( Utils\get_flag_value( $assoc_args, 'skip-cache', false ) ) {
 			$wp_embed->usecache = false;
 			// In order to skip caching, also need `$cached_recently` to be false in `WP_Embed::shortcode()`, so set TTL to zero.
 			add_filter( 'oembed_ttl', '__return_zero', PHP_INT_MAX );
@@ -191,26 +199,7 @@ class Fetch_Command extends WP_CLI_Command {
 		// `WP_Embed::shortcode()` sets the 'discover' attribute based on 'embed_oembed_discover' filter, no matter what's passed to it.
 		add_filter( 'embed_oembed_discover', $discover ? '__return_true' : '__return_false', PHP_INT_MAX );
 
-		// For WP < 4.9, `WP_Embed::shortcode()` won't check providers if no post_id supplied, so set `maybe_make_link()` to return false so can check and do it ourselves.
-		// Also set if WP < 4.4 and don't have 'unfiltered_html' privileges on post.
-		$check_providers = Utils\wp_version_compare( '4.9', '<' ) && ( ! $post_id || ( Utils\wp_version_compare( '4.4', '<' ) && ! author_can( $post_id, 'unfiltered_html' ) ) );
-		if ( $check_providers ) {
-			add_filter( 'embed_maybe_make_link', '__return_false', PHP_INT_MAX );
-		}
-
 		$html = $wp_embed->shortcode( $oembed_args, $url );
-
-		if ( false === $html && $check_providers ) {
-
-			// Check providers.
-			$oembed_args['discover'] = $discover;
-			$html                    = wp_oembed_get( $url, $oembed_args );
-
-			// `wp_oembed_get()` returns zero-length string instead of false on failure due to `_strip_newlines()` 'oembed_dataparse' filter so make sure false.
-			if ( '' === $html ) {
-				$html = false;
-			}
-		}
 
 		if ( false !== $html && '[' === substr( $html, 0, 1 ) && Utils\get_flag_value( $assoc_args, 'do-shortcode' ) ) {
 			$html = do_shortcode( $html, true );
