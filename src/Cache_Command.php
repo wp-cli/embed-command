@@ -8,6 +8,22 @@ use WP_CLI_Command;
 
 /**
  * Finds, triggers, and deletes oEmbed caches.
+ *
+ * ## EXAMPLES
+ *
+ *     # Find cache post ID for a given URL.
+ *     $ wp embed cache find https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500
+ *     123
+ *
+ *     # Clear cache for a post.
+ *     $ wp embed cache clear 123
+ *     Success: Cleared oEmbed cache.
+ *
+ *     # Triggers cache for a post.
+ *     $ wp embed cache trigger 456
+ *     Success: Caching triggered!
+ *
+ * @package wp-cli
  */
 class Cache_Command extends WP_CLI_Command {
 
@@ -178,10 +194,6 @@ class Cache_Command extends WP_CLI_Command {
 	 *     123
 	 */
 	public function find( $args, $assoc_args ) {
-		if ( Utils\wp_version_compare( '4.9', '<' ) ) {
-			WP_CLI::error( 'Requires WordPress 4.9 or greater.' );
-		}
-
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
@@ -217,7 +229,7 @@ class Cache_Command extends WP_CLI_Command {
 			$cached_post_id = $wp_embed->find_oembed_post_id( $key_suffix );
 
 			if ( $cached_post_id ) {
-				WP_CLI::line( $cached_post_id );
+				WP_CLI::line( (string) $cached_post_id );
 
 				return;
 			}

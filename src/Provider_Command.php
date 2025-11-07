@@ -9,6 +9,23 @@ use WP_CLI_Command;
 
 /**
  * Retrieves oEmbed providers.
+ *
+ * ## EXAMPLES
+ *
+ *     # List format,endpoint fields of available providers.
+ *     $ wp embed provider list
+ *     +------------------------------+-----------------------------------------+
+ *     | format                       | endpoint                                |
+ *     +------------------------------+-----------------------------------------+
+ *     | #https?://youtu\.be/.*#i     | https://www.youtube.com/oembed          |
+ *     | #https?://flic\.kr/.*#i      | https://www.flickr.com/services/oembed/ |
+ *     | #https?://wordpress\.tv/.*#i | https://wordpress.tv/oembed/            |
+ *
+ *     # Get the matching provider for the URL.
+ *     $ wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ
+ *     https://www.youtube.com/oembed
+ *
+ * @package wp-cli
  */
 class Provider_Command extends WP_CLI_Command {
 	protected $default_fields = array(
@@ -63,10 +80,13 @@ class Provider_Command extends WP_CLI_Command {
 	 *     | #https?://wordpress\.tv/.*#i | https://wordpress.tv/oembed/            |
 	 *
 	 * @subcommand list
+	 *
+	 * @param string[] $args Positional arguments. Unused.
+	 * @param array{field?: string, fields?: string, format: 'table'|'csv'|'json', 'force-regex'?: bool} $assoc_args Associative arguments.
 	 */
 	public function list_providers( $args, $assoc_args ) {
 
-		$oembed = new oEmbed();
+		$oembed = new \WP_oEmbed();
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
 
@@ -121,14 +141,17 @@ class Provider_Command extends WP_CLI_Command {
 	 *     https://www.youtube.com/oembed
 	 *
 	 * @subcommand match
+	 *
+	 * @param array{0: string} $args Positional arguments.
+	 * @param array{discover?: bool, 'limit-response-size'?: string, 'link-type'?: 'json'|'xml', } $assoc_args Associative arguments.
 	 */
 	public function match_provider( $args, $assoc_args ) {
-		$oembed = new oEmbed();
+		$oembed = new \WP_oEmbed();
 
 		$url                 = $args[0];
-		$discover            = \WP_CLI\Utils\get_flag_value( $assoc_args, 'discover', true );
-		$response_size_limit = \WP_CLI\Utils\get_flag_value( $assoc_args, 'limit-response-size' );
-		$link_type           = \WP_CLI\Utils\get_flag_value( $assoc_args, 'link-type' );
+		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
+		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
+		$link_type           = Utils\get_flag_value( $assoc_args, 'link-type' );
 
 		if ( ! $discover && ( null !== $response_size_limit || null !== $link_type ) ) {
 			if ( null !== $response_size_limit && null !== $link_type ) {
@@ -142,14 +165,10 @@ class Provider_Command extends WP_CLI_Command {
 		}
 
 		if ( $response_size_limit ) {
-			if ( Utils\wp_version_compare( '4.0', '<' ) ) {
-				WP_CLI::warning( "The 'limit-response-size' option only works for WordPress 4.0 onwards." );
-				// Fall through anyway...
-			}
 			add_filter(
 				'oembed_remote_get_args',
 				function ( $args ) use ( $response_size_limit ) {
-					$args['limit_response_size'] = $response_size_limit;
+					$args['limit_response_size'] = (int) $response_size_limit;
 					return $args;
 				}
 			);
