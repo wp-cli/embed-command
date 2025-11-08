@@ -89,14 +89,19 @@ class Cache_Command extends WP_CLI_Command {
 			);
 
 			$oembed_caches = array(
-				'post' => $oembed_post_meta_post_ids,
+				'post'        => $oembed_post_meta_post_ids,
 				'oembed post' => $oembed_post_post_ids,
-				'transient' => $oembed_transients,
+				'transient'   => $oembed_transients,
 			);
 
-			$total = array_sum( array_map( function( $items ) {
-				return count( $items );
-			}, $oembed_caches ) );
+			$total = array_sum(
+				array_map(
+					function ( $items ) {
+						return count( $items );
+					},
+					$oembed_caches
+				)
+			);
 
 			// Delete post meta oEmbed caches
 			foreach ( $oembed_post_meta_post_ids as $post_id ) {
@@ -116,7 +121,7 @@ class Cache_Command extends WP_CLI_Command {
 			if ( $total > 0 ) {
 				$details = array();
 				foreach ( $oembed_caches as $type => $items ) {
-					$count = count( $items );
+					$count     = count( $items );
 					$details[] = sprintf(
 						'%1$d %2$s %3$s',
 						$count,
