@@ -86,7 +86,8 @@ class Provider_Command extends WP_CLI_Command {
 	 */
 	public function list_providers( $args, $assoc_args ) {
 
-		$oembed = new \WP_oEmbed();
+		// We use _wp_oembed_get_object to get the singleton, which contains all the registered providers.
+		$oembed = _wp_oembed_get_object();
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
 
