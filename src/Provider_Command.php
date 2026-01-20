@@ -86,7 +86,8 @@ class Provider_Command extends WP_CLI_Command {
 	 */
 	public function list_providers( $args, $assoc_args ) {
 
-		$oembed = new \WP_oEmbed();
+		// We use _wp_oembed_get_object to get the singleton, which contains all the registered providers.
+		$oembed = _wp_oembed_get_object();
 
 		$force_regex = Utils\get_flag_value( $assoc_args, 'force-regex' );
 
@@ -146,7 +147,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * @param array{discover?: bool, 'limit-response-size'?: string, 'link-type'?: 'json'|'xml', } $assoc_args Associative arguments.
 	 */
 	public function match_provider( $args, $assoc_args ) {
-		$oembed = new \WP_oEmbed();
+		$oembed = _wp_oembed_get_object();
 
 		$url                 = $args[0];
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
