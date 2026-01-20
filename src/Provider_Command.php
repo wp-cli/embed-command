@@ -147,7 +147,7 @@ class Provider_Command extends WP_CLI_Command {
 	 * @param array{discover?: bool, 'limit-response-size'?: string, 'link-type'?: 'json'|'xml', } $assoc_args Associative arguments.
 	 */
 	public function match_provider( $args, $assoc_args ) {
-		$oembed = new \WP_oEmbed();
+		$oembed = _wp_oembed_get_object();
 
 		$url                 = $args[0];
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );

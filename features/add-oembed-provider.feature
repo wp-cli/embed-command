@@ -276,7 +276,14 @@ Feature: Register and use custom oEmbed providers
       """
     And STDOUT should contain:
       """
-   audio.com/
+      audio.com/
+      """
+
+  Scenario: Match custom oEmbed provider after registration
+    When I run `wp embed provider match http://example.com/foo --require=filter-providers.php`
+    Then STDOUT should be:
+      """
+      http://example.com/api/oembed.json
       """
 
   Scenario: Incompatible or wrong options
