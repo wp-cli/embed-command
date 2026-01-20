@@ -276,7 +276,7 @@ Feature: Register and use custom oEmbed providers
       """
     And STDOUT should contain:
       """
-     audio.com/
+   audio.com/
       """
 
   Scenario: Incompatible or wrong options
