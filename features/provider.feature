@@ -211,7 +211,6 @@ Feature: Manage oEmbed providers.
       json
       """
 
-  # Depends on `oembed_remote_get_args` filter introduced in WP 4.0 https://core.trac.wordpress.org/ticket/23442
   Scenario: Discover a provider with limited response size
     # Mock the audio.com URL to return HTML with oEmbed discovery links
     Given that HTTP requests to https://audio.com/audio-com/collections/ambient-focus will respond with:

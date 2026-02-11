@@ -188,7 +188,6 @@ Feature: Manage oEmbed fetch.
       <type>video</type>
       """
 
-  # Depends on `oembed_remote_get_args` filter introduced WP 4.0 https://core.trac.wordpress.org/ticket/23442
   Scenario: Get embed code for a URL with limited response size
     # Need post_id for caching to work for WP < 4.9, and also post_author for caching to work for WP < 4.4 (due to 'unfiltered_html' check).
     When I run `wp post create --post_title="Foo Bar" --post_author=1 --porcelain`
@@ -287,7 +286,6 @@ Feature: Manage oEmbed fetch.
       Hello world!
       """
 
-  # `wp_embed_handler_youtube` handler introduced WP 4.0.
   Scenario: Invoke built-in YouTube handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
