@@ -155,8 +155,10 @@ class Provider_Command extends WP_CLI_Command {
 		$link_type           = Utils\get_flag_value( $assoc_args, 'link-type' );
 
 		if ( ! $discover && ( null !== $response_size_limit || null !== $link_type ) ) {
+			// @phpstan-ignore notIdentical.alwaysTrue
 			if ( null !== $response_size_limit && null !== $link_type ) {
 				$msg = "The 'limit-response-size' and 'link-type' options can only be used with discovery.";
+				// @phpstan-ignore notIdentical.alwaysTrue
 			} elseif ( null !== $response_size_limit ) {
 				$msg = "The 'limit-response-size' option can only be used with discovery.";
 			} else {
