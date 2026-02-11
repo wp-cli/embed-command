@@ -127,7 +127,6 @@ Feature: Manage oEmbed providers.
     When I run `wp embed provider list --field=regex`
     Then STDOUT should match /^(?:(?:1|0)\n)+$/
 
-  @require-wp-4.0
   Scenario: Match an oEmbed provider
     # Mock the audio.com URL to return HTML with oEmbed discovery links
     Given that HTTP requests to https://audio.com/audio-com/collections/ambient-focus will respond with:
@@ -213,7 +212,6 @@ Feature: Manage oEmbed providers.
       """
 
   # Depends on `oembed_remote_get_args` filter introduced in WP 4.0 https://core.trac.wordpress.org/ticket/23442
-  @require-wp-4.0
   Scenario: Discover a provider with limited response size
     # Mock the audio.com URL to return HTML with oEmbed discovery links
     Given that HTTP requests to https://audio.com/audio-com/collections/ambient-focus will respond with:
@@ -278,7 +276,6 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should be empty
 
-  @require-wp-4.0
   Scenario: Only match an oEmbed provider if discover
     # Mock the audio.com URL to return HTML with oEmbed discovery links
     Given that HTTP requests to https://audio.com/audio-com/collections/ambient-focus will respond with:
