@@ -331,6 +331,13 @@ Feature: Manage oEmbed providers.
      audio.com/
       """
 
+  Scenario: Match custom oEmbed provider after registration
+    When I run `wp embed provider match http://example.com/foo --require=filter-providers.php`
+    Then STDOUT should be:
+      """
+      http://example.com/api/oembed.json
+      """
+
   Scenario: Incompatible or wrong options
     When I try `wp embed provider match https://www.example.com/watch?v=dQw4w9WgXcQ --no-discover --limit-response-size=50000`
     Then the return code should be 1
