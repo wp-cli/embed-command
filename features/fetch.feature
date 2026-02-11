@@ -3,7 +3,6 @@ Feature: Manage oEmbed fetch.
   Background:
     Given a WP install
 
-  @require-wp-4.0
   Scenario: Get HTML embed code for a given URL
     # Known provider not requiring discovery.
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --width=500`
@@ -77,8 +76,6 @@ Feature: Manage oEmbed fetch.
       <script
       """
 
-  # WP 4.9 always returns clickable link even for sanitized oEmbed responses.
-  @require-wp-4.9
   Scenario: Get HTML embed code for a given URL that requires discovery and is sanitized
     When I run `wp embed fetch https://app.ex.co/stories/item/8fb2343f-fa5d-48d4-8723-f8b5d51cc1a9`
     Then STDOUT should contain:
@@ -90,7 +87,6 @@ Feature: Manage oEmbed fetch.
       <a
       """
 
-  @require-wp-4.0
   Scenario: Get raw oEmbed data for a given URL
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw`
     And save STDOUT as {DEFAULT_STDOUT}
@@ -119,7 +115,6 @@ Feature: Manage oEmbed fetch.
       ceros.com
       """
 
-  @require-wp-4.0
   Scenario: Fail then succeed when given unknown discoverable provider for a raw request, depending on discover option
     When I try `wp embed fetch http://LearningApps.org/259 --raw --no-discover`
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discovery so use "contain" to ignore these.
@@ -140,7 +135,6 @@ Feature: Manage oEmbed fetch.
       LearningApps.org
       """
 
-  @require-wp-4.0
   Scenario: Bails when no oEmbed provider is found for a raw request
     When I try `wp embed fetch https://foo.example.com --raw`
     # Old versions of WP_oEmbed can trigger PHP "Only variables should be passed by reference" notices on discovery so use "contain" to ignore these.
@@ -149,7 +143,6 @@ Feature: Manage oEmbed fetch.
       Error: No oEmbed provider found for given URL.
       """
 
-  @require-wp-4.0
   Scenario: Bails when no oEmbed provider is found for a raw request and discovery is off
     When I try `wp embed fetch https://foo.example.com --raw --discover=0`
     Then STDERR should be:
@@ -157,8 +150,6 @@ Feature: Manage oEmbed fetch.
       Error: No oEmbed provider found for given URL. Maybe try discovery?
       """
 
-  # WP 4.9 always returns clickable link.
-  @require-wp-4.9
   Scenario: Makes unknown URLs clickable
     When I run `wp embed fetch https://foo.example.com`
     Then STDOUT should contain:
@@ -166,7 +157,6 @@ Feature: Manage oEmbed fetch.
       <a href="https://foo.example.com">https://foo.example.com</a>
       """
 
-  @require-wp-4.0
   Scenario: Caches oEmbed response data for a given post
     # Note need post author for 'unfiltered_html' check to work for WP < 4.4.
     When I run `wp post create --post_title="Foo Bar" --post_author=1 --porcelain`
@@ -191,7 +181,6 @@ Feature: Manage oEmbed fetch.
       Success: Cleared oEmbed cache.
       """
 
-  @require-wp-4.0
   Scenario: Return data as XML when requested
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ --raw-format=xml --raw`
     Then STDOUT should contain:
@@ -199,8 +188,6 @@ Feature: Manage oEmbed fetch.
       <type>video</type>
       """
 
-  # Depends on `oembed_remote_get_args` filter introduced WP 4.0 https://core.trac.wordpress.org/ticket/23442
-  @require-wp-4.0
   Scenario: Get embed code for a URL with limited response size
     # Need post_id for caching to work for WP < 4.9, and also post_author for caching to work for WP < 4.4 (due to 'unfiltered_html' check).
     When I run `wp post create --post_title="Foo Bar" --post_author=1 --porcelain`
@@ -246,8 +233,6 @@ Feature: Manage oEmbed fetch.
       {DEFAULT_STDOUT}
       """
 
-  # Same as above but without the post_id. WP >= 4.9 only
-  @require-wp-4.9
   Scenario: Get embed code for a URL with limited response size and post-less cache
     When I run `wp embed fetch https://www.youtube.com/watch?v=dQw4w9WgXcQ`
     And save STDOUT as {DEFAULT_STDOUT}
@@ -288,8 +273,6 @@ Feature: Manage oEmbed fetch.
       {DEFAULT_STDOUT}
       """
 
-  # Depends on `wp_filter_pre_oembed_result` filter introduced WP 4.5.3 https://core.trac.wordpress.org/ticket/36767
-  @require-wp-4.5.3
   Scenario: Fetch locally provided URL
     When I run `wp embed fetch http://example.com/?p=1`
     Then STDOUT should contain:
@@ -303,8 +286,6 @@ Feature: Manage oEmbed fetch.
       Hello world!
       """
 
-  # `wp_embed_handler_youtube` handler introduced WP 4.0.
-  @require-wp-4.0
   Scenario: Invoke built-in YouTube handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -320,7 +301,6 @@ Feature: Manage oEmbed fetch.
       <iframe
       """
 
-  @require-wp-4.0
   Scenario: Invoke built-in audio handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -346,7 +326,6 @@ Feature: Manage oEmbed fetch.
       <audio
       """
 
-  @require-wp-4.0
   Scenario: Invoke built-in video handler
     When I run `wp post create --post_title="Foo Bar" --porcelain`
     Then STDOUT should be a number
@@ -372,7 +351,6 @@ Feature: Manage oEmbed fetch.
       <video
       """
 
-  @require-wp-4.0
   Scenario: Incompatible options
     When I try `wp embed fetch https://www.example.com/watch?v=dQw4w9WgXcQ --no-discover --limit-response-size=50000`
     Then the return code should be 1

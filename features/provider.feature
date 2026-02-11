@@ -127,8 +127,25 @@ Feature: Manage oEmbed providers.
     When I run `wp embed provider list --field=regex`
     Then STDOUT should match /^(?:(?:1|0)\n)+$/
 
-  @require-wp-4.0
   Scenario: Match an oEmbed provider
+    # Mock the audio.com URL to return HTML with oEmbed discovery links
+    Given that HTTP requests to https://audio.com/audio-com/collections/ambient-focus will respond with:
+      """
+      HTTP/1.1 200
+      Content-Type: text/html
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <link rel="alternate" type="application/json+oembed" href="https://audio.com/oembed?format=json&url=https%3A%2F%2Faudio.com%2Faudio-com%2Fcollections%2Fambient-focus" title="Ambient Focus Collection">
+        <link rel="alternate" type="text/xml+oembed" href="https://audio.com/oembed?format=xml&url=https%3A%2F%2Faudio.com%2Faudio-com%2Fcollections%2Fambient-focus" title="Ambient Focus Collection">
+      </head>
+      <body>
+        <h1>Ambient Focus Collection</h1>
+      </body>
+      </html>
+      """
+
     # Provider not requiring discovery
     When I run `wp embed provider match https://www.youtube.com/watch?v=dQw4w9WgXcQ`
     Then STDOUT should contain:
@@ -194,14 +211,12 @@ Feature: Manage oEmbed providers.
       json
       """
 
-  # Depends on `oembed_remote_get_args` filter introduced in WP 4.0 https://core.trac.wordpress.org/ticket/23442
-  @require-wp-4.0
   Scenario: Discover a provider with limited response size
-    When I run `wp embed provider match https://audio.com/audio-com/collections/ambient-focus`
+    When I run `wp embed provider match https://developer.wordpress.org/news/`
     Then save STDOUT as {DEFAULT_STDOUT}
 
     # Response limit too small
-    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --limit-response-size=10`
+    When I try `wp embed provider match https://developer.wordpress.org/news/ --limit-response-size=10`
     Then the return code should be 1
     And STDERR should be:
       """
@@ -209,7 +224,7 @@ Feature: Manage oEmbed providers.
       """
 
     # Response limit big enough
-    When I run `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --limit-response-size=50000`
+    When I run `wp embed provider match https://developer.wordpress.org/news/ --limit-response-size=50000`
     Then STDOUT should be:
       """
       {DEFAULT_STDOUT}
@@ -242,8 +257,25 @@ Feature: Manage oEmbed providers.
       """
     And STDOUT should be empty
 
-  @require-wp-4.0
   Scenario: Only match an oEmbed provider if discover
+    # Mock the audio.com URL to return HTML with oEmbed discovery links
+    Given that HTTP requests to https://audio.com/audio-com/collections/ambient-focus will respond with:
+      """
+      HTTP/1.1 200
+      Content-Type: text/html
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <link rel="alternate" type="application/json+oembed" href="https://audio.com/oembed?format=json&url=https%3A%2F%2Faudio.com%2Faudio-com%2Fcollections%2Fambient-focus" title="Ambient Focus Collection">
+        <link rel="alternate" type="text/xml+oembed" href="https://audio.com/oembed?format=xml&url=https%3A%2F%2Faudio.com%2Faudio-com%2Fcollections%2Fambient-focus" title="Ambient Focus Collection">
+      </head>
+      <body>
+        <h1>Ambient Focus Collection</h1>
+      </body>
+      </html>
+      """
+
     When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --no-discover`
     Then the return code should be 1
     And STDERR should be:
@@ -278,6 +310,13 @@ Feature: Manage oEmbed providers.
     And STDOUT should contain:
       """
      audio.com/
+      """
+
+  Scenario: Match custom oEmbed provider after registration
+    When I run `wp embed provider match http://example.com/foo --require=filter-providers.php`
+    Then STDOUT should be:
+      """
+      http://example.com/api/oembed.json
       """
 
   Scenario: Incompatible or wrong options
