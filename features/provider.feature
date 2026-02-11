@@ -212,11 +212,11 @@ Feature: Manage oEmbed providers.
       """
 
   Scenario: Discover a provider with limited response size
-    When I run `wp embed provider match https://audio.com/audio-com/collections/ambient-focus`
+    When I run `wp embed provider match https://developer.wordpress.org/news/`
     Then save STDOUT as {DEFAULT_STDOUT}
 
     # Response limit too small
-    When I try `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --limit-response-size=10`
+    When I try `wp embed provider match https://developer.wordpress.org/news/ --limit-response-size=10`
     Then the return code should be 1
     And STDERR should be:
       """
@@ -224,7 +224,7 @@ Feature: Manage oEmbed providers.
       """
 
     # Response limit big enough
-    When I run `wp embed provider match https://audio.com/audio-com/collections/ambient-focus --limit-response-size=50000`
+    When I run `wp embed provider match https://developer.wordpress.org/news/ --limit-response-size=50000`
     Then STDOUT should be:
       """
       {DEFAULT_STDOUT}
