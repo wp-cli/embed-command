@@ -67,7 +67,6 @@ Feature: Manage oEmbed cache.
       """
     And the return code should be 0
 
-  @require-wp-4.9
   Scenario: Find oEmbed cache post ID for a non-existent key
     When I try `wp embed cache find foo`
     Then STDERR should be:
@@ -76,7 +75,6 @@ Feature: Manage oEmbed cache.
       """
     And the return code should be 1
 
-  @require-wp-4.9
   Scenario: Find oEmbed cache post ID for an existing key
     # Add a non-post embed, default attributes.
     When I run `wp eval 'echo $GLOBALS["wp_embed"]->run_shortcode( "[embed]https://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]" );'`
