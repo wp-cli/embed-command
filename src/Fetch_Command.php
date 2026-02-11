@@ -168,7 +168,7 @@ class Fetch_Command extends WP_CLI_Command {
 				if ( ! class_exists( 'SimpleXMLElement' ) ) {
 					WP_CLI::error( "The PHP extension 'SimpleXMLElement' is not available but is required for XML-formatted output." );
 				}
-				WP_CLI::log( (string) $this->oembed_create_xml( (array) $data ) );
+				WP_CLI::log( (string) _oembed_create_xml( (array) $data ) );
 			} else {
 				WP_CLI::log( (string) json_encode( $data ) );
 			}
@@ -210,41 +210,5 @@ class Fetch_Command extends WP_CLI_Command {
 		}
 
 		WP_CLI::log( $html );
-	}
-
-	/**
-	 * Creates an XML string from a given array.
-	 *
-	 * Same as `\_oembed_create_xml()` in "wp-includes\embed.php" introduced in WP 4.4.0. Polyfilled as marked private (and also to cater for older WP versions).
-	 *
-	 * @see _oembed_create_xml()
-	 *
-	 * @param array            $data The original oEmbed response data.
-	 * @param \SimpleXMLElement $node Optional. XML node to append the result to recursively.
-	 * @return string|false XML string on success, false on error.
-	 */
-	protected function oembed_create_xml( $data, $node = null ) {
-		if ( ! is_array( $data ) || empty( $data ) ) {
-			return false;
-		}
-
-		if ( null === $node ) {
-			$node = new \SimpleXMLElement( '<oembed></oembed>' );
-		}
-
-		foreach ( $data as $key => $value ) {
-			if ( is_numeric( $key ) ) {
-				$key = 'oembed';
-			}
-
-			if ( is_array( $value ) ) {
-				$item = $node->addChild( $key );
-				$this->oembed_create_xml( $value, $item );
-			} else {
-				$node->addChild( $key, esc_html( $value ) );
-			}
-		}
-
-		return $node->asXML();
 	}
 }
