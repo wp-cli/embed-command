@@ -2,7 +2,6 @@
 
 namespace WP_CLI\Embeds;
 
-use WP_CLI;
 use WP_CLI\Formatter;
 use WP_CLI_Command;
 
