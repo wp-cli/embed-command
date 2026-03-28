@@ -77,7 +77,11 @@ Feature: Manage oEmbed cache.
 
   Scenario: Find oEmbed cache post ID for an existing key
     # Add a non-post embed, default attributes.
-    When I run `wp eval 'echo $GLOBALS["wp_embed"]->run_shortcode( "[embed]https://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]" );'`
+    Given a step1.php file:
+      """
+      <?php echo $GLOBALS["wp_embed"]->run_shortcode( "[embed]https://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]" );
+      """
+    When I run `wp eval-file step1.php`
     Then STDOUT should contain:
       """
       dQw4w9WgXcQ
@@ -87,7 +91,11 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
 
     # Add a non-post embed with width attribute.
-    When I run `wp eval 'echo $GLOBALS["wp_embed"]->run_shortcode( "[embed width=400]https://www.youtube.com/watch?v=yPYZpwSpKmA[/embed]" );'`
+    Given a step2.php file:
+      """
+      <?php echo $GLOBALS["wp_embed"]->run_shortcode( "[embed width=400]https://www.youtube.com/watch?v=yPYZpwSpKmA[/embed]" );
+      """
+    When I run `wp eval-file step2.php`
     Then STDOUT should contain:
       """
       yPYZpwSpKmA
@@ -114,7 +122,11 @@ Feature: Manage oEmbed cache.
     And the return code should be 1
 
     # Add a non-post embed with discover=1 attribute.
-    When I run `wp eval 'echo $GLOBALS["wp_embed"]->run_shortcode( "[embed discover=1]https://www.youtube.com/watch?v=yBwD4iYcWC4[/embed]" );'`
+    Given a step3.php file:
+      """
+      <?php echo $GLOBALS["wp_embed"]->run_shortcode( "[embed discover=1]https://www.youtube.com/watch?v=yBwD4iYcWC4[/embed]" );
+      """
+    When I run `wp eval-file step3.php`
     Then STDOUT should contain:
       """
       yBwD4iYcWC4
@@ -137,7 +149,11 @@ Feature: Manage oEmbed cache.
     Then STDOUT should be a number
 
     # Add a non-post embed with width and discover attributes.
-    When I run `wp eval 'echo $GLOBALS["wp_embed"]->run_shortcode( "[embed width=450 discover=0]https://www.youtube.com/watch?v=eYuUAGXN0KM[/embed]" );'`
+    Given a step4.php file:
+      """
+      <?php echo $GLOBALS["wp_embed"]->run_shortcode( "[embed width=450 discover=0]https://www.youtube.com/watch?v=eYuUAGXN0KM[/embed]" );
+      """
+    When I run `wp eval-file step4.php`
     Then STDOUT should contain:
       """
       eYuUAGXN0KM
@@ -178,7 +194,11 @@ Feature: Manage oEmbed cache.
     #Then STDOUT should be a number
 
     # Dummy data with default width/height.
-    When I run `wp eval 'echo md5( "foo" . serialize( wp_embed_defaults() ) );'`
+    Given a step5.php file:
+      """
+      <?php echo md5( "foo" . serialize( wp_embed_defaults() ) );
+      """
+    When I run `wp eval-file step5.php`
     Then STDOUT should not be empty
     And save STDOUT as {CACHE_KEY}
 
@@ -193,7 +213,11 @@ Feature: Manage oEmbed cache.
       """
 
     # Dummy data with given width/height. Specify width/height as strings as that's what shortcode attributes will be passed as.
-    When I run `wp eval 'echo md5( "foo" . serialize( array( "width" => "600", "height" => "400" ) ) );'`
+    Given a step6.php file:
+      """
+      <?php echo md5( "foo" . serialize( array( "width" => "600", "height" => "400" ) ) );
+      """
+    When I run `wp eval-file step6.php`
     Then STDOUT should not be empty
     And save STDOUT as {CACHE_KEY}
 
