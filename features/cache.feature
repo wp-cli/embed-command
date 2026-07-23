@@ -15,10 +15,10 @@ Feature: Manage oEmbed cache.
       """
 
   Scenario: Clear oEmbed cache for a post
-    When I run `wp post-meta add 1 _oembed_foo 'bar'`
+    When I run `wp post meta add 1 _oembed_foo 'bar'`
     Then STDOUT should not be empty
 
-    When I run `wp post-meta get 1 _oembed_foo`
+    When I run `wp post meta get 1 _oembed_foo`
     Then STDOUT should be:
       """
       bar
