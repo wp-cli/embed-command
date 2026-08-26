@@ -19,9 +19,9 @@ parameters:
 
     # WordPress 6.0 only formalized the already documented `...$args` parameter of
     # `apply_filters()` by adding it to the function signature. Additional arguments were
-    # collected through `func_get_args()` before that, so passing them to `oembed_result`
-    # has always worked. The identifier already names one specific parameter of one
-    # specific function.
+    # collected through `func_get_args()` before that, so passing `$url` and
+    # `$oembed_args` to `pre_oembed_result` has always worked. The identifier already
+    # names one specific parameter of one specific function.
     -
       identifier: WPCompat.parameterNotAvailable.applyfilters.args
       path: src/Fetch_Command.php
