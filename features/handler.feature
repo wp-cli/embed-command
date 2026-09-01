@@ -57,7 +57,12 @@ Feature: Manage embed handlers.
 
     Given an embed_register_handler.php file:
       """
-      <?php WP_CLI::add_hook( 'after_wp_load', function() { wp_embed_register_handler( 'my_id', '/regex/', 'callback', 123 ); } );
+      <?php WP_CLI::add_hook(
+          'after_wp_load',
+          function () {
+              wp_embed_register_handler( 'my_id', '/regex/', 'callback', 123 );
+          }
+      );
       """
 
     When I run `wp --require=embed_register_handler.php embed handler list`

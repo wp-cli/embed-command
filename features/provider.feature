@@ -5,10 +5,13 @@ Feature: Manage oEmbed providers.
     And a filter-providers.php file:
       """
       <?php
-      WP_CLI::add_wp_hook( 'oembed_providers', function ( $providers ) {
-        $providers['http://example.com/*'] = [ 'http://example.com/api/oembed.{format}', false ];
-        return $providers;
-      });
+      WP_CLI::add_wp_hook(
+          'oembed_providers',
+          function ( $providers ) {
+              $providers['http://example.com/*'] = [ 'http://example.com/api/oembed.{format}', false ];
+              return $providers;
+          }
+      );
       """
 
   Scenario: List oEmbed providers
