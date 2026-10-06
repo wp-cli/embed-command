@@ -151,8 +151,8 @@ class Provider_Command extends WP_CLI_Command {
 
 		$url                 = $args[0];
 		$discover            = Utils\get_flag_value( $assoc_args, 'discover', true );
-		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
-		$link_type           = Utils\get_flag_value( $assoc_args, 'link-type' );
+		$response_size_limit = $assoc_args['limit-response-size'] ?? null;
+		$link_type           = $assoc_args['link-type'] ?? null;
 
 		if ( ! $discover && ( null !== $response_size_limit || null !== $link_type ) ) {
 			if ( null !== $response_size_limit && null !== $link_type ) {
