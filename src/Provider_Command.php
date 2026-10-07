@@ -154,15 +154,24 @@ class Provider_Command extends WP_CLI_Command {
 		$response_size_limit = Utils\get_flag_value( $assoc_args, 'limit-response-size' );
 		$link_type           = Utils\get_flag_value( $assoc_args, 'link-type' );
 
-		if ( ! $discover && ( null !== $response_size_limit || null !== $link_type ) ) {
-			if ( null !== $response_size_limit && null !== $link_type ) {
-				$msg = "The 'limit-response-size' and 'link-type' options can only be used with discovery.";
-			} elseif ( null !== $response_size_limit ) {
-				$msg = "The 'limit-response-size' option can only be used with discovery.";
-			} else {
-				$msg = "The 'link-type' option can only be used with discovery.";
+		if ( ! $discover ) {
+			$discovery_options = [];
+			if ( null !== $response_size_limit ) {
+				$discovery_options[] = "'limit-response-size'";
 			}
-			WP_CLI::error( $msg );
+			if ( null !== $link_type ) {
+				$discovery_options[] = "'link-type'";
+			}
+
+			if ( ! empty( $discovery_options ) ) {
+				WP_CLI::error(
+					sprintf(
+						'The %s %s can only be used with discovery.',
+						implode( ' and ', $discovery_options ),
+						count( $discovery_options ) > 1 ? 'options' : 'option'
+					)
+				);
+			}
 		}
 
 		if ( $response_size_limit ) {
