@@ -47,6 +47,101 @@ Feature: Manage oEmbed cache.
       Success: Cleared oEmbed cache.
       """
 
+  Scenario: Clear oEmbed cache with missing arguments
+    When I try `wp embed cache clear`
+    Then STDERR should be:
+      """
+      Error: Please specify one or more post IDs, or use --all.
+      """
+    And the return code should be 1
+
+  Scenario: Clear oEmbed cache for multiple posts
+    When I run `wp post create --post_title="Post 1" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID_1}
+
+    When I run `wp post create --post_title="Post 2" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID_2}
+
+    When I run `wp post meta add {POST_ID_1} _oembed_foo 'bar'`
+    Then STDOUT should not be empty
+
+    When I run `wp post meta add {POST_ID_2} _oembed_baz 'qux'`
+    Then STDOUT should not be empty
+
+    When I run `wp embed cache clear {POST_ID_1} {POST_ID_2}`
+    Then STDOUT should be:
+      """
+      Success: Cleared oEmbed cache for post {POST_ID_1}.
+      Success: Cleared oEmbed cache for post {POST_ID_2}.
+      """
+    And the return code should be 0
+
+    When I try `wp post meta get {POST_ID_1} _oembed_foo`
+    Then the return code should be 1
+
+    When I try `wp post meta get {POST_ID_2} _oembed_baz`
+    Then the return code should be 1
+
+  Scenario: Clear oEmbed cache for multiple posts with some empty
+    When I run `wp post create --post_title="Post 1" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID_1}
+
+    When I run `wp post create --post_title="Post 2" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID_2}
+
+    When I run `wp post meta add {POST_ID_1} _oembed_foo 'bar'`
+    Then STDOUT should not be empty
+
+    When I try `wp embed cache clear {POST_ID_1} {POST_ID_2}`
+    Then STDOUT should be:
+      """
+      Success: Cleared oEmbed cache for post {POST_ID_1}.
+      """
+    And STDERR should be:
+      """
+      Warning: No cache to clear for post {POST_ID_2}!
+      """
+    And the return code should be 1
+
+  Scenario: Clear all oEmbed caches
+    When I run `wp post create --post_title="Post 1" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID_1}
+
+    When I run `wp post create --post_title="Post 2" --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {POST_ID_2}
+
+    When I run `wp post meta add {POST_ID_1} _oembed_foo 'bar'`
+    Then STDOUT should not be empty
+
+    When I run `wp post meta add {POST_ID_2} _oembed_baz 'qux'`
+    Then STDOUT should not be empty
+
+    When I run `wp post create --post_title=EmbedCache --post_type=oembed_cache --post_status=publish --porcelain`
+    Then STDOUT should be a number
+    And save STDOUT as {OEMBED_POST_ID}
+
+    When I run `wp embed cache clear --all`
+    Then STDOUT should be:
+      """
+      Success: Cleared all oEmbed caches.
+      """
+    And the return code should be 0
+
+    When I try `wp post meta get {POST_ID_1} _oembed_foo`
+    Then the return code should be 1
+
+    When I try `wp post meta get {POST_ID_2} _oembed_baz`
+    Then the return code should be 1
+
+    When I try `wp post get {OEMBED_POST_ID}`
+    Then the return code should be 1
+
   Scenario: Trigger oEmbed cache for a non-existent post
     When I try `wp embed cache trigger 123456`
     Then STDERR should contain:
