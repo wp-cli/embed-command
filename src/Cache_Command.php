@@ -75,6 +75,10 @@ class Cache_Command extends WP_CLI_Command {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( "DELETE FROM {$wpdb->posts} WHERE post_type = 'oembed_cache'" );
 
+			if ( function_exists( 'wp_cache_flush' ) ) {
+				wp_cache_flush();
+			}
+
 			WP_CLI::success( 'Cleared all oEmbed caches.' );
 			return;
 		}
