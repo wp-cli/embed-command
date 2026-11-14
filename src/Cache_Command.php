@@ -28,45 +28,99 @@ use WP_CLI_Command;
 class Cache_Command extends WP_CLI_Command {
 
 	/**
-	 * Deletes all oEmbed caches for a given post.
+	 * Deletes all oEmbed caches for a given post or all posts.
 	 *
 	 * oEmbed caches for a post are stored in the post's metadata.
+	 * Starting with WordPress 4.9, embeds that aren't associated with a specific post will be cached in
+	 * a new oembed_cache post type.
 	 *
 	 * ## OPTIONS
 	 *
-	 * <post_id>
-	 * : ID of the post to clear the cache for.
+	 * [<post_id>...]
+	 * : One or more IDs of the posts to clear the cache for.
+	 *
+	 * [--all]
+	 * : Clear all oEmbed caches.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Clear cache for a post
+	 *     # Clear cache for a post.
 	 *     $ wp embed cache clear 123
 	 *     Success: Cleared oEmbed cache.
+	 *
+	 *     # Clear cache for multiple posts.
+	 *     $ wp embed cache clear 123 456 789
+	 *     Success: Cleared oEmbed cache for post 123.
+	 *     Success: Cleared oEmbed cache for post 456.
+	 *     Success: Cleared oEmbed cache for post 789.
+	 *
+	 *     # Clear all oEmbed caches.
+	 *     $ wp embed cache clear --all
+	 *     Success: Cleared all oEmbed caches.
 	 */
 	public function clear( $args, $assoc_args ) {
+		$all = Utils\get_flag_value( $assoc_args, 'all', false );
+
+		if ( empty( $args ) && ! $all ) {
+			WP_CLI::error( 'Please specify one or more post IDs, or use --all.' );
+		}
+
+		if ( $all ) {
+			/** @var \wpdb $wpdb */
+			global $wpdb;
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '_oembed_%'" );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query( "DELETE FROM {$wpdb->posts} WHERE post_type = 'oembed_cache'" );
+
+			if ( function_exists( 'wp_cache_flush' ) ) {
+				wp_cache_flush();
+			}
+
+			WP_CLI::success( 'Cleared all oEmbed caches.' );
+			return;
+		}
+
 		/** @var \WP_Embed $wp_embed */
 		global $wp_embed;
 
-		$post_id = $args[0];
+		$errors = 0;
+		foreach ( $args as $post_id ) {
+			$post_metas = get_post_custom_keys( $post_id );
 
-		$post_metas = get_post_custom_keys( $post_id );
+			if ( $post_metas ) {
+				$post_metas = array_filter(
+					$post_metas,
+					function ( $v ) {
+						return '_oembed_' === substr( $v, 0, 8 );
+					}
+				);
+			}
 
-		if ( $post_metas ) {
-			$post_metas = array_filter(
-				$post_metas,
-				function ( $v ) {
-					return '_oembed_' === substr( $v, 0, 8 );
+			if ( empty( $post_metas ) ) {
+				if ( 1 === count( $args ) ) {
+					WP_CLI::error( 'No cache to clear!' );
+				} else {
+					WP_CLI::warning( "No cache to clear for post {$post_id}!" );
+					++$errors;
+					continue;
 				}
-			);
+			}
+
+			$wp_embed->delete_oembed_caches( $post_id );
+
+			if ( count( $args ) > 1 ) {
+				WP_CLI::success( "Cleared oEmbed cache for post {$post_id}." );
+			}
 		}
 
-		if ( empty( $post_metas ) ) {
-			WP_CLI::error( 'No cache to clear!' );
+		if ( 1 === count( $args ) ) {
+			WP_CLI::success( 'Cleared oEmbed cache.' );
+		} elseif ( $errors > 0 ) {
+			WP_CLI::halt( 1 );
 		}
-
-		$wp_embed->delete_oembed_caches( $post_id );
-
-		WP_CLI::success( 'Cleared oEmbed cache.' );
 	}
 
 	/**
